@@ -1,0 +1,1392 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>English Coach</title>
+<meta name="description" content="Corso di inglese da 30 minuti al giorno: grammatica, ascolto, conversazione, flashcard e quiz.">
+<meta name="theme-color" content="#d9532b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Nunito+Sans:wght@400;600;700;800;900&display=swap">
+<style>
+/* Layout: app mobile a colonna singola, barra schede in basso; la sessione si apre a schermo intero sopra. */
+:root{
+  --bg:#f5f2ec; --surface:#fffdf9; --surface2:#efe9df; --line:#e0d8cb; --ink:#1d2129; --muted:#6b6f78;
+  --accent:#d9532b; --accent-ink:#fff; --ok:#1f8a70; --ok-bg:#e3f3ed; --bad:#c43d3d; --bad-bg:#fbe7e5; --warn:#b7791f;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Nunito Sans","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14161b; --surface:#1d2027; --surface2:#262a33; --line:#323743; --ink:#eef0f4; --muted:#9aa0ab;
+  --accent:#f0714a; --ok:#3cc29a; --ok-bg:#16332b; --bad:#ef6a6a; --bad-bg:#3a1f22; --warn:#e3a341; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14161b; --surface:#1d2027; --surface2:#262a33; --line:#323743; --ink:#eef0f4; --muted:#9aa0ab;
+  --accent:#f0714a; --ok:#3cc29a; --ok-bg:#16332b; --bad:#ef6a6a; --bad-bg:#3a1f22; --warn:#e3a341; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button,input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:1.6rem} h2{font-size:1.25rem} h3{font-size:1.05rem}
+p{margin:0}
+.app{max-width:640px;margin:0 auto;padding:16px 16px calc(92px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 16px}
+.top .brand{font-family:var(--display);font-weight:700;font-size:1.15rem}
+.top .brand span{color:var(--accent)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface2);font-size:.85rem;font-weight:700;white-space:nowrap}
+.stack{display:grid;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px}
+.muted{color:var(--muted)} .small{font-size:.88rem}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.btn{appearance:none;border:0;border-radius:12px;padding:12px 16px;font-weight:800;background:var(--accent);color:var(--accent-ink);cursor:pointer;font-size:1rem;text-align:center}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.soft{background:var(--surface2);color:var(--ink)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:8px 12px;font-size:.9rem;border-radius:10px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.progress{height:12px;border-radius:999px;background:var(--surface2);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .4s}
+.big{font-family:var(--display);font-size:2.4rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kv div{background:var(--surface2);border-radius:12px;padding:10px}
+.kv b{display:block;font-family:var(--display);font-size:1.2rem;font-variant-numeric:tabular-nums}
+.kv small{color:var(--muted);font-size:.75rem}
+.blocks{display:grid;gap:6px}
+.blk{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);border:0;width:100%;text-align:left;cursor:pointer}
+.blk .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:.75rem;font-weight:900}
+.blk.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.blk .min{margin-left:auto;color:var(--muted);font-size:.85rem}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav.tabs .in{display:flex;width:100%;max-width:640px}
+nav.tabs button{flex:1;border:0;background:none;padding:10px 4px 12px;display:grid;justify-items:center;gap:3px;font-size:.75rem;font-weight:700;color:var(--muted);cursor:pointer}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+/* Sessione */
+.session{position:fixed;inset:0;background:var(--bg);z-index:10;overflow-y:auto;display:none}
+.session.on{display:block}
+.session .in{max-width:640px;margin:0 auto;padding:12px 16px calc(32px + env(safe-area-inset-bottom,0px));display:grid;gap:14px}
+.shead{display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2}
+.shead .x{border:0;background:var(--surface2);width:40px;height:40px;border-radius:12px;font-size:1.2rem;cursor:pointer;flex:none}
+.shead .t{flex:1;min-width:0}
+.shead .t b{display:block;font-family:var(--display)}
+.shead .t small{color:var(--muted)}
+.timer{font-variant-numeric:tabular-nums;font-weight:800}
+.steps{display:flex;gap:4px}
+.steps i{flex:1;height:5px;border-radius:3px;background:var(--surface2)}
+.steps i.on{background:var(--accent)} .steps i.done{background:var(--ok)}
+.q{font-size:1.15rem;font-weight:700}
+.opts{display:grid;gap:8px}
+.opt{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;font-size:1rem}
+.opt.sel{border-color:var(--accent)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.ko{border-color:var(--bad);background:var(--bad-bg)}
+input.txt,textarea.txt,select.txt{width:100%;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-size:1rem}
+textarea.txt{min-height:150px;resize:vertical}
+.fb{border-radius:12px;padding:12px 14px;font-weight:700}
+.fb.ok{background:var(--ok-bg);color:var(--ok)} .fb.ko{background:var(--bad-bg);color:var(--bad)}
+.rule{border-left:4px solid var(--accent)}
+.eg{display:grid;gap:6px}
+.eg div{display:flex;gap:8px;align-items:flex-start}
+.say{border:0;background:var(--surface2);border-radius:8px;width:32px;height:32px;flex:none;cursor:pointer;display:grid;place-items:center}
+.say svg{width:18px;height:18px}
+.mist{display:grid;gap:6px;font-size:.95rem}
+.mist div{display:grid;grid-template-columns:1fr;gap:2px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
+.mist s{color:var(--bad);text-decoration-thickness:2px}
+.mist b{color:var(--ok)}
+.flash{min-height:230px;display:grid;align-content:center;justify-items:center;text-align:center;gap:10px}
+.flash .w{font-family:var(--display);font-size:2rem;font-weight:700}
+.grade{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.grade button{border:0;border-radius:12px;padding:12px 4px;font-weight:800;cursor:pointer;background:var(--surface2);font-size:.9rem}
+.grade button small{display:block;font-weight:600;color:var(--muted);font-size:.72rem}
+.mic{width:76px;height:76px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;margin:0 auto}
+.mic svg{width:34px;height:34px}
+.mic.on{animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(217,83,43,.5)}100%{box-shadow:0 0 0 18px rgba(217,83,43,0)}}
+.chat{display:grid;gap:8px}
+.msg{padding:10px 12px;border-radius:14px;max-width:88%}
+.msg.ai{background:var(--surface);border:1px solid var(--line)}
+.msg.me{background:var(--accent);color:#fff;justify-self:end}
+.list{display:grid;gap:8px}
+.res{display:grid;gap:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+.res.ok{border-color:var(--ok)} .res.ko{border-color:var(--bad)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:12px;font-weight:700;z-index:30;max-width:90vw;font-size:.9rem}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.modal .sheet{background:var(--bg);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:12px}
+.tag{font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.week{display:grid;gap:6px}
+.lesson-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.lesson-row:last-child{border-bottom:0}
+.lesson-row .n{width:28px;height:28px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;font-weight:800;font-size:.8rem;flex:none}
+.lesson-row.done .n{background:var(--ok);color:#fff}
+.lesson-row.cur .n{background:var(--accent);color:#fff}
+.bar-row{display:grid;grid-template-columns:1fr 90px 40px;gap:8px;align-items:center;font-size:.88rem}
+.bar-row .progress{height:8px}
+label.f{display:grid;gap:6px;font-weight:700;font-size:.92rem}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:#fff}
+details summary{cursor:pointer;font-weight:700}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+</style>
+</head>
+<body>
+<main class="app" id="view"></main>
+<nav class="tabs" id="tabs" aria-label="Sezioni"></nav>
+<section class="session" id="session" aria-label="Sessione"></section>
+<script>
+/* ===== Contenuti del corso =====
+   RULES: regole di grammatica. Ogni regola ha spiegazione in inglese semplice, 3 esempi,
+   i 3 errori più comuni degli italiani e un "pool" di esercizi per quiz e ripasso.
+   Esercizi: {q, o:[opzioni], a:indice}  oppure  {q, a:['risposta', 'alternativa']} (da scrivere). */
+const RULES = {
+  'ps-form': {
+    t: 'Present simple: he / she / it + -s',
+    ex: 'Use the present simple for routines, habits and facts. With I, you, we, they use the base verb. With he, she, it add -s (-es after -ch, -sh, -s, -x, -o; consonant + y becomes -ies). Have becomes has.',
+    eg: ['I start work at 8.', 'She works in a warehouse.', 'The truck leaves at 6 every morning.'],
+    common: [['He work in Prato.', 'He works in Prato.'], ['She gos to the gym.', 'She goes to the gym.'], ['My boss haves a meeting.', 'My boss has a meeting.']],
+    pool: [
+      { q: 'My colleague ___ (drive) to work every day.', a: ['drives'] },
+      { q: 'The office ___ at 8:30.', o: ['open', 'opens', 'opening'], a: 1 },
+      { q: 'Marco ___ (fix) the scanners when they break.', a: ['fixes'] },
+      { q: 'They ___ lunch at one.', o: ['has', 'have', 'having'], a: 1 },
+      { q: 'My sister ___ (try) a new recipe every Sunday.', a: ['tries'] },
+      { q: 'The courier ___ two deliveries to Prato every morning.', o: ['do', 'does', 'doing'], a: 1 }
+    ]
+  },
+  'ps-q': {
+    t: 'Present simple: questions and negatives (do / does)',
+    ex: 'Questions: Do / Does + subject + base verb. Negatives: don\'t / doesn\'t + base verb. With does and doesn\'t the main verb has NO -s: the -s is already in "does".',
+    eg: ['Do you work on Saturdays?', 'Does she drive to work?', 'He doesn\'t work on Sundays.'],
+    common: [['Does he works in an office?', 'Does he work in an office?'], ['She don\'t like coffee.', 'She doesn\'t like coffee.'], ['You work here?', 'Do you work here?']],
+    pool: [
+      { q: '___ your manager speak English?', o: ['Do', 'Does', 'Is'], a: 1 },
+      { q: 'We ___ (not / work) on Sundays.', a: ['don\'t work', 'do not work'] },
+      { q: 'Does the truck ___ at six?', o: ['leaves', 'leave', 'leaving'], a: 1 },
+      { q: 'She ___ (not / like) long meetings.', a: ['doesn\'t like', 'does not like'] },
+      { q: '___ you check the orders every day?', o: ['Do', 'Does', 'Are'], a: 0 },
+      { q: 'What time ___ the warehouse close?', o: ['do', 'does', 'is'], a: 1 }
+    ]
+  },
+  'prep-time': {
+    t: 'Prepositions of time: at / on / in',
+    ex: 'AT + a clock time (at 7, at noon, at night). ON + a day or a date (on Monday, on 5 May, on Friday morning). IN + a month, a year, a season or a part of the day (in May, in 2026, in the morning).',
+    eg: ['I start at 7 o\'clock.', 'We have a meeting on Monday.', 'I go running in the evening.'],
+    common: [['on the morning', 'in the morning'], ['at Monday', 'on Monday'], ['in 7 o\'clock', 'at 7 o\'clock']],
+    pool: [
+      { q: 'The meeting is ___ Thursday.', o: ['in', 'on', 'at'], a: 1 },
+      { q: 'I usually finish ___ five.', o: ['in', 'on', 'at'], a: 2 },
+      { q: 'My holiday is ___ August.', o: ['in', 'on', 'at'], a: 0 },
+      { q: 'We play football ___ Monday evening.', o: ['in', 'on', 'at'], a: 1 }
+    ]
+  },
+  'art-a': {
+    t: 'a / an',
+    ex: 'Use A before a consonant SOUND and AN before a vowel SOUND. Listen to the sound, not the letter: an hour (h is silent), a university (it starts with a "y" sound).',
+    eg: ['I need a report.', 'She sent an email.', 'It takes an hour.'],
+    common: [['a email', 'an email'], ['an university', 'a university'], ['a hour', 'an hour']],
+    pool: [
+      { q: 'I need ___ hour to finish.', o: ['a', 'an'], a: 1 },
+      { q: 'She has ___ university degree.', o: ['a', 'an'], a: 0 },
+      { q: 'He works for ___ Italian company.', o: ['a', 'an'], a: 1 },
+      { q: 'We use ___ new scanner.', o: ['a', 'an'], a: 0 }
+    ]
+  },
+  'adv-freq': {
+    t: 'Adverbs of frequency: position',
+    ex: 'Always, usually, often, sometimes, rarely, never go BEFORE the main verb (I usually drive), but AFTER the verb "be" (He is never late). In questions they go after the subject (Do you often travel?).',
+    eg: ['I usually have lunch at one.', 'She is always on time.', 'We rarely work on Saturdays.'],
+    common: [['I go usually to work by car.', 'I usually go to work by car.'], ['She always is late.', 'She is always late.'], ['Never I eat breakfast.', 'I never eat breakfast.']],
+    pool: [
+      { q: 'Choose the correct sentence.', o: ['I check always the orders.', 'I always check the orders.', 'Always I check the orders.'], a: 1 },
+      { q: 'Choose the correct sentence.', o: ['He is often tired on Mondays.', 'He often is tired on Mondays.', 'Often he tired on Mondays.'], a: 0 },
+      { q: 'Put "never" in the right place: "I ___ drink coffee after six."', o: ['never', '(after "drink")', '(at the end)'], a: 0 },
+      { q: 'Choose the correct question.', o: ['Do you travel often for work?', 'Do often you travel for work?', 'Do you often travel for work?'], a: 2 },
+      { q: 'Choose the correct sentence.', o: ['We sometimes are busy.', 'We are sometimes busy.', 'Sometimes are we busy.'], a: 1 }
+    ]
+  },
+  'pc-form': {
+    t: 'Present continuous: am / is / are + -ing',
+    ex: 'Use the present continuous for actions happening now and for temporary situations (this week, this month, at the moment). Form: am / is / are + verb-ing. Do not forget the verb "be".',
+    eg: ['I\'m working on a new report.', 'She is talking to a courier at the moment.', 'This week we are testing a new system.'],
+    common: [['I working on it.', 'I\'m working on it.'], ['She is work now.', 'She is working now.'], ['They are study English this month.', 'They are studying English this month.']],
+    pool: [
+      { q: 'Look! The truck ___ (arrive).', a: ['is arriving', '\'s arriving'] },
+      { q: 'I ___ on a new dashboard this week.', o: ['work', 'am working', 'working'], a: 1 },
+      { q: 'They ___ (wait) for the delivery right now.', a: ['are waiting', '\'re waiting'] },
+      { q: 'Choose the correct sentence.', o: ['She is write an email.', 'She writing an email.', 'She is writing an email.'], a: 2 },
+      { q: 'What ___ you doing at the moment?', o: ['do', 'are', 'is'], a: 1 }
+    ]
+  },
+  'art-the': {
+    t: 'the / no article',
+    ex: 'Use NO article when you talk about things in general: plural nouns, uncountable nouns, sports, languages (I like football, Logistics is interesting, Life is hard). Use THE for something specific that we both know (The football match last night was great).',
+    eg: ['I love music.', 'Coffee keeps me awake.', 'The coffee in our office is terrible.'],
+    common: [['The life is hard.', 'Life is hard.'], ['I play the football on Mondays.', 'I play football on Mondays.'], ['I study the English.', 'I study English.']],
+    pool: [
+      { q: '___ logistics is a very dynamic sector.', o: ['The', '(no article)'], a: 1 },
+      { q: 'Can you close ___ door, please?', o: ['the', '(no article)'], a: 0 },
+      { q: 'I play ___ football twice a week.', o: ['the', '(no article)'], a: 1 },
+      { q: '___ report you sent me is perfect.', o: ['The', '(no article)'], a: 0 }
+    ]
+  },
+  'stative': {
+    t: 'Simple or continuous? State verbs',
+    ex: 'Use the present simple for habits and the present continuous for now. Some verbs describe states, not actions: know, want, need, like, love, prefer, mean, understand, believe, depend. We usually do NOT use them in the continuous.',
+    eg: ['I usually drive, but today I\'m taking the train.', 'I know the answer.', 'I need more time.'],
+    common: [['I am knowing him.', 'I know him.'], ['I\'m needing a break.', 'I need a break.'], ['He works now.', 'He is working now.']],
+    pool: [
+      { q: 'I ___ what you mean.', o: ['understand', 'am understanding'], a: 0 },
+      { q: 'Today she ___ from home.', o: ['works', 'is working'], a: 1 },
+      { q: 'We ___ more people in the warehouse.', o: ['need', 'are needing'], a: 0 },
+      { q: 'He usually ___ the bus, but this week he is driving.', o: ['takes', 'is taking'], a: 0 },
+      { q: 'This sentence ___ "the delivery is late".', o: ['means', 'is meaning'], a: 0 }
+    ]
+  },
+  'prep-fixed': {
+    t: 'Fixed prepositions: depend on, interested in, good at…',
+    ex: 'Some words always go with the same preposition. Learn them as one block: depend ON, interested IN, good AT, responsible FOR, wait FOR, listen TO.',
+    eg: ['It depends on the courier.', 'I\'m interested in data analysis.', 'She is responsible for the orders.'],
+    common: [['It depends from the weather.', 'It depends on the weather.'], ['I\'m interested to this job.', 'I\'m interested in this job.'], ['He is good in Excel.', 'He is good at Excel.']],
+    pool: [
+      { q: 'The delivery time depends ___ the region.', o: ['from', 'of', 'on'], a: 2 },
+      { q: 'I\'m very interested ___ the position.', o: ['in', 'to', 'for'], a: 0 },
+      { q: 'Who is responsible ___ the shipments?', o: ['of', 'for', 'to'], a: 1 },
+      { q: 'She is really good ___ SQL.', o: ['in', 'on', 'at'], a: 2 }
+    ]
+  }
+};
+
+/* Lezioni. Ogni lezione = una sessione da 30 minuti. */
+const LESSONS = [
+  {
+    id: 'w1d1', w: 1, d: 1, title: 'My working day', goal: 'Descrivere la tua giornata con il present simple',
+    rule: 'ps-form', extra: 'art-a',
+    items: [
+      { q: 'My colleague ___ (drive) to work every day.', a: ['drives'] },
+      { q: 'The warehouse ___ at 7 a.m.', o: ['open', 'opens', 'opening'], a: 1 },
+      { q: 'He ___ (watch) football on Mondays.', a: ['watches'] },
+      { q: 'We ___ the shipments every morning.', o: ['checks', 'check', 'checking'], a: 1 },
+      { q: 'She ___ (study) English in the evening.', a: ['studies'] },
+      { q: 'Andrea ___ in logistics.', o: ['work', 'works', 'is work'], a: 1 }
+    ],
+    extraItems: [
+      { q: 'I sent ___ email to the courier.', o: ['a', 'an'], a: 1 },
+      { q: 'It\'s ___ big warehouse.', o: ['a', 'an'], a: 0 }
+    ],
+    cards: [
+      { en: 'commute', it: 'tragitto casa-lavoro', ex: ['My commute takes 40 minutes.', 'I listen to podcasts during my commute.'] },
+      { en: 'shift', it: 'turno', ex: ['I work the morning shift.', 'Her shift ends at 2 p.m.'] },
+      { en: 'deadline', it: 'scadenza', ex: ['The deadline is on Friday.', 'We never miss a deadline.'] },
+      { en: 'to get up', it: 'alzarsi', ex: ['I get up at 6:30.', 'What time do you get up?'] },
+      { en: 'it takes me…', it: 'ci metto…', ex: ['It takes me 40 minutes to get to work.', 'It takes her an hour to finish the report.'] },
+      { en: 'to finish work', it: 'finire di lavorare', ex: ['I finish work at five.', 'She finishes work late on Fridays.'] }
+    ],
+    listen: {
+      title: 'Laura\'s day',
+      text: 'Hi, I\'m Laura. I work in a warehouse near Florence. I get up at six o\'clock and I start work at seven. My commute takes twenty minutes by car. In the morning I check the orders and I call the couriers. I have lunch at one with my colleagues. I finish work at four, and then I go to the gym twice a week.',
+      qs: [
+        { q: 'What time does Laura start work?', o: ['At six', 'At seven', 'At eight'], a: 1 },
+        { q: 'How does she get to work?', o: ['By train', 'By car', 'On foot'], a: 1 },
+        { q: 'What does she do in the morning?', o: ['She checks orders and calls couriers', 'She writes reports', 'She meets clients'], a: 0 },
+        { q: 'How often does she go to the gym?', o: ['Every day', 'Twice a week', 'Never'], a: 1 }
+      ]
+    },
+    speak: {
+      topic: 'Tell me about your typical working day.', target: 'ps-form',
+      qs: ['What time do you get up?', 'How do you get to work, and how long does it take?', 'What do you do in the morning at work?', 'What time do you finish work?'],
+      model: 'I get up at half past six. I go to work by car and it takes me about forty minutes. In the morning I check the shipments and I call the couriers. I finish work at five.'
+    },
+    quiz: [
+      { r: 'ps-form', q: 'She ___ a lot of emails every day.', o: ['write', 'writes', 'writing'], a: 1 },
+      { r: 'ps-form', q: 'My manager ___ a car.', o: ['haves', 'has', 'have'], a: 1 },
+      { r: 'art-a', q: 'I need ___ answer.', o: ['a', 'an'], a: 1 },
+      { r: 'vocab', q: 'The ___ is on Friday: we must finish the report.', o: ['shift', 'deadline', 'commute'], a: 1 }
+    ]
+  },
+  {
+    id: 'w1d2', w: 1, d: 2, title: 'Questions about your job', goal: 'Fare e rispondere a domande con do / does',
+    rule: 'ps-q', extra: 'prep-time',
+    items: [
+      { q: '___ you work on Saturdays?', o: ['Do', 'Does', 'Are'], a: 0 },
+      { q: 'She ___ (not / drive) to work.', a: ['doesn\'t drive', 'does not drive'] },
+      { q: 'Does he ___ in an office?', o: ['works', 'work', 'working'], a: 1 },
+      { q: 'I ___ (not / use) Excel very much.', a: ['don\'t use', 'do not use'] },
+      { q: 'Where ___ your company ship the books?', o: ['do', 'does', 'is'], a: 1 },
+      { q: 'Choose the correct question.', o: ['You like your job?', 'Do you like your job?', 'Like you your job?'], a: 1 }
+    ],
+    extraItems: [
+      { q: 'I start work ___ 8 o\'clock.', o: ['in', 'on', 'at'], a: 2 },
+      { q: 'I go to the gym ___ the evening.', o: ['in', 'on', 'at'], a: 0 }
+    ],
+    cards: [
+      { en: 'warehouse', it: 'magazzino', ex: ['I work in a big warehouse.', 'The warehouse closes at six.'] },
+      { en: 'shipment', it: 'spedizione', ex: ['The shipment leaves today.', 'We check every shipment.'] },
+      { en: 'delay', it: 'ritardo', ex: ['There is a delay with the courier.', 'Sorry for the delay.'] },
+      { en: 'courier', it: 'corriere', ex: ['I call the courier every morning.', 'Which courier do you use?'] },
+      { en: 'to deliver', it: 'consegnare', ex: ['They deliver the parcels in 24 hours.', 'Does he deliver on Saturdays?'] },
+      { en: 'order', it: 'ordine', ex: ['We receive 500 orders a day.', 'Can you check this order?'] }
+    ],
+    listen: {
+      title: 'A short job interview',
+      text: 'Interviewer: So, what do you do at the moment? Marco: I work for a logistics company in Prato. Interviewer: And what does your job involve? Marco: I manage the shipments and I talk to the couriers when there is a problem. Interviewer: Do you work with data? Marco: Yes, I do. I prepare reports every week. Interviewer: Do you work on Saturdays? Marco: No, I don\'t. I work from Monday to Friday.',
+      qs: [
+        { q: 'Where does Marco work?', o: ['In a shop', 'In a logistics company', 'In a bank'], a: 1 },
+        { q: 'When does he talk to the couriers?', o: ['Every hour', 'When there is a problem', 'On Saturdays'], a: 1 },
+        { q: 'How often does he prepare reports?', o: ['Every day', 'Every week', 'Every month'], a: 1 },
+        { q: 'Does Marco work on Saturdays?', o: ['Yes, he does', 'No, he doesn\'t', 'Only in the morning'], a: 1 }
+      ]
+    },
+    speak: {
+      topic: 'Answer questions about your job.', target: 'ps-q',
+      qs: ['What do you do?', 'Do you work with data?', 'Do you work on Saturdays?', 'What does your manager do?'],
+      model: 'I work in the logistics department of a publishing company. Yes, I do: I prepare Power BI reports. No, I don\'t work on Saturdays. My manager plans the work and talks to the couriers.'
+    },
+    quiz: [
+      { r: 'ps-q', q: 'Does she ___ English at work?', o: ['speak', 'speaks', 'speaking'], a: 0 },
+      { r: 'ps-q', q: 'They ___ work on Sundays.', o: ['doesn\'t', 'don\'t', 'not'], a: 1 },
+      { r: 'prep-time', q: 'We have a meeting ___ Tuesday.', o: ['in', 'on', 'at'], a: 1 },
+      { r: 'vocab', q: 'Sorry, there is a ___ with your order.', o: ['delay', 'warehouse', 'courier'], a: 0 }
+    ]
+  },
+  {
+    id: 'w1d3', w: 1, d: 3, title: 'How often?', goal: 'Usare always, usually, never nella posizione giusta',
+    rule: 'adv-freq',
+    items: [
+      { q: 'Choose the correct sentence.', o: ['I usually go to work by car.', 'I go usually to work by car.', 'Usually I go by car usually.'], a: 0 },
+      { q: 'Choose the correct sentence.', o: ['She always is on time.', 'She is always on time.', 'Always she is on time.'], a: 1 },
+      { q: 'Put the words in order: "never / I / late / am"', a: ['i am never late', 'i\'m never late'] },
+      { q: 'Choose the correct question.', o: ['Do you often work late?', 'Do often you work late?', 'Often do you work late?'], a: 0 },
+      { q: 'Put the words in order: "rarely / we / on Sundays / work"', a: ['we rarely work on sundays'] },
+      { q: 'Choose the correct sentence.', o: ['He hardly ever is tired.', 'He is hardly ever tired.', 'He is tired hardly ever always.'], a: 1 }
+    ],
+    cards: [
+      { en: 'always', it: 'sempre', ex: ['I always check the orders first.', 'She is always on time.'] },
+      { en: 'usually', it: 'di solito', ex: ['I usually have lunch at one.', 'We usually finish at five.'] },
+      { en: 'often', it: 'spesso', ex: ['I often call the couriers.', 'Do you often travel for work?'] },
+      { en: 'sometimes', it: 'a volte', ex: ['I sometimes work from home.', 'It sometimes rains in the morning.'] },
+      { en: 'rarely', it: 'raramente', ex: ['We rarely work on Saturdays.', 'He rarely drinks coffee.'] },
+      { en: 'hardly ever', it: 'quasi mai', ex: ['I hardly ever eat fast food.', 'She is hardly ever late.'] }
+    ],
+    listen: {
+      title: 'A phone call at the office',
+      text: 'Hello, this is Sara from Fast Delivery. I\'m calling about your order for Milan. We usually deliver in twenty-four hours, but today there is a delay because of the traffic. The driver is never late, so this is unusual. We often have problems on Mondays. The parcel arrives tomorrow morning. Please call me back if you have any questions.',
+      qs: [
+        { q: 'Why is Sara calling?', o: ['About an order for Milan', 'About a new job', 'About a meeting'], a: 0 },
+        { q: 'How long does delivery usually take?', o: ['Twelve hours', 'Twenty-four hours', 'Two days'], a: 1 },
+        { q: 'When do they often have problems?', o: ['On Fridays', 'On Mondays', 'At the weekend'], a: 1 },
+        { q: 'When does the parcel arrive?', o: ['This afternoon', 'Tomorrow morning', 'Next week'], a: 1 }
+      ]
+    },
+    speak: {
+      topic: 'How often do you do things?', target: 'adv-freq',
+      qs: ['How often do you play football?', 'Do you ever work at the weekend?', 'How often do you drink coffee?', 'What do you usually do on Sunday?'],
+      model: 'I play football once or twice a week, usually on Monday. I hardly ever work at the weekend. I usually drink two coffees a day. On Sunday I often see my friends.'
+    },
+    translate: {
+      title: 'La mia giornata di lavoro',
+      it: 'Mi chiamo Andrea e lavoro nella logistica. Di solito mi alzo alle sei e mezza e vado al lavoro in macchina. Il tragitto dura circa quaranta minuti. La mattina controllo le spedizioni e chiamo i corrieri quando c\'è un ritardo. Pranzo all\'una con i colleghi. Finisco di lavorare alle cinque e due volte a settimana vado ad allenarmi.',
+      model: 'My name is Andrea and I work in logistics. I usually get up at half past six and I go to work by car. The commute takes about forty minutes. In the morning I check the shipments and I call the couriers when there is a delay. I have lunch at one with my colleagues. I finish work at five and twice a week I go training.',
+      keys: [
+        { re: 'my name is|i\'m andrea|i am andrea', en: 'My name is Andrea', it: 'Mi chiamo Andrea', note: 'In inglese non si dice "I call myself".' },
+        { re: 'work in logistics|work in the logistics', en: 'I work in logistics', it: 'lavoro nella logistica', note: 'Settore in generale: niente "the".' },
+        { re: 'usually get up', en: 'I usually get up', it: 'di solito mi alzo', note: '"usually" va prima del verbo.' },
+        { re: 'by car', en: 'by car', it: 'in macchina', note: 'Mezzo di trasporto: by + mezzo, senza articolo.' },
+        { re: 'takes', en: 'it takes (about) forty minutes', it: 'dura circa quaranta minuti', note: 'Per il tempo necessario si usa "take", con la -s.' },
+        { re: 'in the morning', en: 'in the morning', it: 'la mattina', note: 'in + parte della giornata.' },
+        { re: 'there is a delay|there\'s a delay', en: 'there is a delay', it: 'c\'è un ritardo', note: '"c\'è" = there is.' },
+        { re: 'have lunch', en: 'I have lunch', it: 'pranzo', note: '"pranzare" = have lunch.' },
+        { re: 'twice a week', en: 'twice a week', it: 'due volte a settimana', note: 'once, twice, three times a week.' }
+      ],
+      qs: [
+        { q: 'How does Andrea go to work?', o: ['By train', 'By car', 'By bus'], a: 1 },
+        { q: 'When does he call the couriers?', o: ['Every morning', 'When there is a delay', 'After lunch'], a: 1 },
+        { q: 'How often does he train?', o: ['Twice a week', 'Every day', 'At the weekend'], a: 0 }
+      ]
+    }
+  },
+  {
+    id: 'w1d4', w: 1, d: 4, title: 'What are you working on?', goal: 'Parlare di cosa stai facendo adesso e questa settimana',
+    rule: 'pc-form', extra: 'art-the',
+    items: [
+      { q: 'I ___ (work) on a new report this week.', a: ['am working', '\'m working'] },
+      { q: 'Choose the correct sentence.', o: ['She talking to the courier.', 'She is talking to the courier.', 'She is talk to the courier.'], a: 1 },
+      { q: 'We ___ (test) a new scanner at the moment.', a: ['are testing', '\'re testing'] },
+      { q: 'What ___ you doing right now?', o: ['do', 'are', 'is'], a: 1 },
+      { q: 'He ___ (not / work) today, he is at home.', a: ['isn\'t working', 'is not working', '\'s not working'] },
+      { q: 'Look! It ___.', o: ['rains', 'is raining', 'raining'], a: 1 }
+    ],
+    extraItems: [
+      { q: '___ football is my favourite sport.', o: ['The', '(no article)'], a: 1 },
+      { q: '___ dashboard you made yesterday is great.', o: ['The', '(no article)'], a: 0 }
+    ],
+    cards: [
+      { en: 'to work on', it: 'lavorare a (un progetto)', ex: ['I\'m working on a new dashboard.', 'What are you working on?'] },
+      { en: 'at the moment', it: 'in questo momento', ex: ['She is busy at the moment.', 'At the moment we are testing it.'] },
+      { en: 'update', it: 'aggiornamento', ex: ['Can you give me an update?', 'I send a weekly update to my manager.'] },
+      { en: 'report', it: 'report, resoconto', ex: ['I\'m preparing the monthly report.', 'The report shows the delays.'] },
+      { en: 'to test', it: 'provare, testare', ex: ['We are testing a new system.', 'Can you test this file?'] },
+      { en: 'busy', it: 'occupato, impegnato', ex: ['I\'m very busy this week.', 'Are you busy now?'] }
+    ],
+    listen: {
+      title: 'A weekly update meeting',
+      text: 'Manager: Good morning, everyone. Let\'s start with the updates. Giulia, what are you working on? Giulia: This week I\'m preparing the report on courier delays. I\'m also testing the new dashboard. Manager: Great. And Paolo? Paolo: I\'m not in the office this week, I\'m working from home. I\'m checking the orders for the new client. Manager: Perfect. We are moving the meeting to Thursday next week.',
+      qs: [
+        { q: 'What is Giulia preparing?', o: ['A report on courier delays', 'A presentation', 'A new website'], a: 0 },
+        { q: 'Where is Paolo working this week?', o: ['In the warehouse', 'From home', 'In Milan'], a: 1 },
+        { q: 'What is Paolo checking?', o: ['The invoices', 'The orders for the new client', 'The trucks'], a: 1 },
+        { q: 'When is the next meeting?', o: ['Thursday next week', 'Tomorrow', 'Monday'], a: 0 }
+      ]
+    },
+    speak: {
+      topic: 'What are you working on this week?', target: 'pc-form',
+      qs: ['What are you working on this week?', 'What are your colleagues doing at the moment?', 'Are you learning anything new?', 'What is happening in your company this month?'],
+      model: 'This week I\'m working on a report about courier punctuality. My colleagues are preparing the orders for the new season. I\'m learning SQL and I\'m studying English every day. This month we are changing the shelves in the warehouse.'
+    },
+    quiz: [
+      { r: 'pc-form', q: 'They ___ for the truck right now.', o: ['wait', 'are waiting', 'waits'], a: 1 },
+      { r: 'pc-form', q: 'Choose the correct sentence.', o: ['I am study English.', 'I studying English.', 'I am studying English.'], a: 2 },
+      { r: 'art-the', q: 'I love ___ music.', o: ['the', '(no article)'], a: 1 },
+      { r: 'vocab', q: 'Can you give me an ___ on the project?', o: ['update', 'deadline', 'shift'], a: 0 }
+    ]
+  },
+  {
+    id: 'w1d5', w: 1, d: 5, title: 'Usually vs today', goal: 'Scegliere tra present simple e continuous',
+    rule: 'stative', extra: 'prep-fixed',
+    items: [
+      { q: 'I usually drive, but today I ___ the train.', o: ['take', 'am taking', 'takes'], a: 1 },
+      { q: 'I ___ the answer.', o: ['know', 'am knowing'], a: 0 },
+      { q: 'She ___ (work) from home today.', a: ['is working', '\'s working'] },
+      { q: 'We ___ (need) more time.', a: ['need'] },
+      { q: 'He ___ coffee every morning.', o: ['drinks', 'is drinking'], a: 0 },
+      { q: 'What ___ this word ___?', o: ['does / mean', 'is / meaning', 'do / means'], a: 0 }
+    ],
+    extraItems: [
+      { q: 'The price depends ___ the weight.', o: ['from', 'on', 'of'], a: 1 },
+      { q: 'I\'m interested ___ data analysis.', o: ['in', 'to', 'for'], a: 0 }
+    ],
+    cards: [
+      { en: 'to prefer', it: 'preferire', ex: ['I prefer tea to coffee.', 'Which courier do you prefer?'] },
+      { en: 'to mean', it: 'significare, voler dire', ex: ['What does this word mean?', 'I mean the other file.'] },
+      { en: 'to depend on', it: 'dipendere da', ex: ['It depends on the courier.', 'The price depends on the weight.'] },
+      { en: 'interested in', it: 'interessato a', ex: ['I\'m interested in this job.', 'Are you interested in football?'] },
+      { en: 'to need', it: 'avere bisogno di', ex: ['I need a break.', 'We need more people.'] },
+      { en: 'to understand', it: 'capire', ex: ['I understand the problem.', 'Do you understand me?'] }
+    ],
+    listen: {
+      title: 'Two colleagues on a Friday',
+      text: 'Anna: Hi Luca, you look tired. Luca: Yes, I usually start at eight, but this week I\'m starting at six because we have a lot of orders. Anna: Oh no. Do you need help? Luca: Thanks, I think I need a weekend! What are you doing this weekend? Anna: I usually stay at home, but this Saturday I\'m visiting my sister in Rome. Luca: Nice. It depends on the weather, but I want to go to the sea.',
+      qs: [
+        { q: 'What time does Luca usually start?', o: ['At six', 'At eight', 'At ten'], a: 1 },
+        { q: 'Why is he starting earlier this week?', o: ['There are a lot of orders', 'He wants to leave early', 'His car is broken'], a: 0 },
+        { q: 'What is Anna doing this Saturday?', o: ['Staying at home', 'Visiting her sister', 'Working'], a: 1 },
+        { q: 'What does Luca\'s plan depend on?', o: ['The weather', 'His sister', 'His boss'], a: 0 }
+      ]
+    },
+    speak: {
+      topic: 'What do you usually do, and what are you doing now?', target: 'stative',
+      qs: ['What do you usually do on Friday evening?', 'What are you doing right now?', 'What do you need to improve at work?', 'What are you interested in?'],
+      model: 'On Friday evening I usually go out with my friends. Right now I\'m studying English on my phone. I need to improve my English and my SQL. I\'m interested in data analysis and football.'
+    },
+    quiz: [
+      { r: 'stative', q: 'I ___ you. Can you repeat?', o: ['don\'t understand', 'am not understanding'], a: 0 },
+      { r: 'stative', q: 'Today he ___ the meeting.', o: ['leads', 'is leading'], a: 1 },
+      { r: 'prep-fixed', q: 'She is good ___ Excel.', o: ['in', 'at', 'on'], a: 1 },
+      { r: 'vocab', q: 'It ___ on the weather.', o: ['depends', 'prefers', 'means'], a: 0 }
+    ]
+  },
+  {
+    id: 'w1d6', w: 1, d: 6, title: 'Review of the week', goal: 'Ripasso misto della settimana', review: true,
+    rule: 'ps-form',
+    items: [
+      { r: 'ps-form', q: 'My brother ___ (live) in Florence.', a: ['lives'] },
+      { r: 'ps-q', q: '___ the courier deliver on Saturdays?', o: ['Do', 'Does', 'Is'], a: 1 },
+      { r: 'adv-freq', q: 'Choose the correct sentence.', o: ['I am usually tired on Friday.', 'I usually am tired on Friday.', 'Usually tired I am on Friday.'], a: 0 },
+      { r: 'pc-form', q: 'Shh! The manager ___ (talk) on the phone.', a: ['is talking', '\'s talking'] },
+      { r: 'stative', q: 'I ___ a new laptop.', o: ['want', 'am wanting'], a: 0 },
+      { r: 'prep-time', q: 'My birthday is ___ March.', o: ['in', 'on', 'at'], a: 0 }
+    ],
+    cards: [
+      { en: 'twice a week', it: 'due volte a settimana', ex: ['I play football twice a week.', 'We meet twice a week.'] },
+      { en: 'to call back', it: 'richiamare', ex: ['Can you call me back later?', 'I\'ll call the courier back.'] },
+      { en: 'on time', it: 'puntuale, in orario', ex: ['The truck is on time.', 'Please be on time.'] },
+      { en: 'to work from home', it: 'lavorare da casa', ex: ['I work from home on Fridays.', 'Today she is working from home.'] },
+      { en: 'colleague', it: 'collega', ex: ['My colleague helps me.', 'I have lunch with my colleagues.'] },
+      { en: 'manager', it: 'responsabile', ex: ['My manager is on holiday.', 'I send the report to my manager.'] }
+    ],
+    listen: {
+      title: 'Andrea\'s week',
+      text: 'Andrea works in the logistics department of a publishing company. He usually starts work at eight and he finishes at five. He checks the shipments every morning and he often calls the couriers. This week is different: he is working on a big report for his manager, so he is staying in the office until six. He doesn\'t like long days, but he understands that the report is important. On Monday evening he always plays football with his friends.',
+      qs: [
+        { q: 'Where does Andrea work?', o: ['In a bank', 'In the logistics department of a publishing company', 'In a school'], a: 1 },
+        { q: 'What is different this week?', o: ['He is on holiday', 'He is working on a big report', 'He is working from home'], a: 1 },
+        { q: 'Until what time is he staying this week?', o: ['Five', 'Six', 'Eight'], a: 1 },
+        { q: 'What does he always do on Monday evening?', o: ['He goes to the gym', 'He plays football', 'He studies English'], a: 1 }
+      ]
+    },
+    speak: {
+      topic: 'Free conversation: you, your job and this week.', target: 'ps-form',
+      qs: ['Tell me about yourself.', 'What do you usually do on a working day?', 'What are you doing differently this week?', 'What do you like and don\'t like about your job?'],
+      model: 'I\'m Andrea, I live in Pistoia and I work in logistics. On a working day I check the shipments and prepare reports. This week I\'m studying English every day. I like working with data, but I don\'t like long meetings.'
+    },
+    translate: {
+      title: 'Cosa sto facendo questo mese',
+      it: 'Questo mese sto lavorando a un nuovo report per il mio responsabile. Il report mostra i ritardi dei corrieri. Di solito uso Power BI, ma questa settimana sto imparando anche SQL. Non capisco ancora tutto, però mi piace molto. Il mio collega mi aiuta quando ho un problema.',
+      model: 'This month I\'m working on a new report for my manager. The report shows the couriers\' delays. I usually use Power BI, but this week I\'m also learning SQL. I don\'t understand everything yet, but I like it a lot. My colleague helps me when I have a problem.',
+      keys: [
+        { re: 'this month', en: 'this month', it: 'questo mese', note: 'Nessuna preposizione prima di "this month".' },
+        { re: '(i\'m|i am) working on', en: 'I\'m working on', it: 'sto lavorando a', note: 'Azione temporanea: present continuous + "on".' },
+        { re: 'shows', en: 'the report shows', it: 'il report mostra', note: 'Terza persona: -s.' },
+        { re: 'usually use', en: 'I usually use', it: 'di solito uso', note: '"usually" prima del verbo.' },
+        { re: '(i\'m|i am) (also )?learning', en: 'I\'m also learning', it: 'sto imparando anche', note: 'Situazione temporanea: continuous.' },
+        { re: '(don\'t|do not) understand', en: 'I don\'t understand', it: 'non capisco', note: '"understand" non va al continuous.' },
+        { re: 'yet', en: 'yet', it: 'ancora (nelle negative)', note: 'Nelle frasi negative "ancora" = yet, alla fine.' },
+        { re: 'helps me', en: 'my colleague helps me', it: 'il mio collega mi aiuta', note: 'Terza persona: -s.' },
+        { re: 'when i have a problem', en: 'when I have a problem', it: 'quando ho un problema', note: '"avere un problema" = have a problem.' }
+      ],
+      qs: [
+        { q: 'What does the report show?', o: ['Sales', 'Couriers\' delays', 'Holidays'], a: 1 },
+        { q: 'What is the person learning this week?', o: ['Power BI', 'SQL', 'Excel'], a: 1 },
+        { q: 'Who helps when there is a problem?', o: ['The manager', 'A colleague', 'Nobody'], a: 1 }
+      ]
+    }
+  },
+  { id: 'w1q', w: 1, d: 7, title: 'Weekly quiz 1', goal: 'Quiz settimanale: 10 domande', weekly: true }
+];
+
+/* Test iniziale: 4 domande per livello + 2 di ascolto */
+const PLACEMENT = [
+  { l: 'A1', q: 'She ___ a teacher.', o: ['is', 'are', 'am'], a: 0 },
+  { l: 'A1', q: '___ you like coffee?', o: ['Do', 'Does', 'Are'], a: 0 },
+  { l: 'A1', q: 'There ___ two chairs in the room.', o: ['is', 'are', 'be'], a: 1 },
+  { l: 'A1', q: 'I ___ TV yesterday evening.', o: ['watch', 'watched', 'watching'], a: 1 },
+  { l: 'A2', q: 'I\'ve lived here ___ 2019.', o: ['for', 'since', 'from'], a: 1 },
+  { l: 'A2', q: 'He is ___ than his brother.', o: ['more tall', 'taller', 'tallest'], a: 1 },
+  { l: 'A2', q: 'We ___ dinner when the phone rang.', o: ['had', 'were having', 'have'], a: 1 },
+  { l: 'A2', q: 'You ___ smoke here. It\'s forbidden.', o: ['mustn\'t', 'don\'t have to', 'needn\'t'], a: 0 },
+  { l: 'A2', listen: 'The meeting has been moved from Tuesday to Thursday afternoon.', q: 'When is the meeting now?', o: ['Tuesday', 'Thursday afternoon', 'Thursday morning'], a: 1 },
+  { l: 'B1', q: 'If I ___ more time, I would learn Spanish.', o: ['have', 'had', 'will have'], a: 1 },
+  { l: 'B1', q: 'The report ___ by the manager yesterday.', o: ['wrote', 'was written', 'has written'], a: 1 },
+  { l: 'B1', q: 'She asked me where I ___.', o: ['live', 'lived', 'do live'], a: 1 },
+  { l: 'B1', q: 'I\'m used to ___ up early.', o: ['get', 'getting', 'got'], a: 1 },
+  { l: 'B1', listen: 'Could you send me the updated figures before lunch, please? I need them for the presentation.', q: 'What does the speaker want?', o: ['The figures before lunch', 'A meeting after lunch', 'To have lunch together'], a: 0 },
+  { l: 'B2', q: 'By the time we arrived, the meeting ___.', o: ['finished', 'had finished', 'has finished'], a: 1 },
+  { l: 'B2', q: 'I wish I ___ that email.', o: ['didn\'t send', 'hadn\'t sent', 'wouldn\'t send'], a: 1 },
+  { l: 'B2', q: 'He denied ___ the documents.', o: ['to take', 'taking', 'take'], a: 1 },
+  { l: 'B2', q: 'Hardly ___ the office when it started raining.', o: ['I had left', 'had I left', 'I left'], a: 1 }
+];
+
+/* Ore guidate cumulative (Cambridge English, valori medi) */
+const LEVEL_H = { A0: 0, A1: 95, A2: 190, B1: 375, B2: 550, C1: 750 };
+const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1'];
+
+/* ===== English Coach: logica dell'app ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function S(k, v) { try { if (v === undefined) { const x = localStorage.getItem(k); return x == null ? null : JSON.parse(x); } localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return iso(d); };
+const fmtDate = s => new Date(s + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const norm = s => String(s || '').toLowerCase().replace(/[’`]/g, "'").replace(/[.,!?;:"]/g, '').replace(/\s+/g, ' ').trim();
+const ICON = {
+  say: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>',
+  cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>',
+  path: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M6 15l4-4 3 3 5-6"/></svg>',
+  set: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
+};
+function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+const BLOCKS = { fc: ['Flashcard', 5], gr: ['Grammatica', 8], li: ['Ascolto', 7], sp: ['Parlato', 7], qz: ['Quiz rapido', 3], tr: ['Traduzione', 8] };
+const RULE_NAME = r => ({ vocab: 'Vocabulary', listening: 'Listening', speaking: 'Speaking', comprehension: 'Comprehension', translation: 'Translation' })[r] || (RULES[r] ? RULES[r].t : r);
+
+/* ---------- Voce: sintesi e riconoscimento ---------- */
+let VOICES = [];
+function loadVoices() { try { VOICES = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)); } catch (e) { VOICES = []; } }
+try { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; } catch (e) { }
+function pickVoice(alt) {
+  const pref = (S('ec-voice') || {}).voice;
+  let v = VOICES.find(x => x.name === pref) || VOICES.find(x => /en-GB/i.test(x.lang)) || VOICES[0];
+  if (alt) { const o = VOICES.filter(x => x !== v && /en-(GB|US)/i.test(x.lang)); if (o.length) v = o[0]; }
+  return v;
+}
+function speak(text, opt = {}) {
+  return new Promise(res => {
+    try {
+      speechSynthesis.cancel();
+      const segs = opt.dialog ? text.split(/(?=\b[A-Z][a-z]+: )/).filter(Boolean) : [text];
+      const names = [];
+      let i = 0;
+      const next = () => {
+        if (i >= segs.length) return res();
+        let s = segs[i++], alt = false;
+        const m = s.match(/^([A-Z][a-z]+): /);
+        if (m) { if (!names.includes(m[1])) names.push(m[1]); alt = names.indexOf(m[1]) % 2 === 1; s = s.slice(m[0].length); }
+        const u = new SpeechSynthesisUtterance(s);
+        const v = pickVoice(alt); if (v) u.voice = v;
+        u.lang = v ? v.lang : 'en-GB';
+        u.rate = (opt.rate || (S('ec-voice') || {}).rate || 0.9);
+        u.pitch = alt ? 0.85 : 1.05;
+        u.onend = next; u.onerror = next;
+        speechSynthesis.speak(u);
+      };
+      next();
+    } catch (e) { res(); }
+  });
+}
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function listen() {
+  return new Promise((res, rej) => {
+    if (!SR) return rej('nosr');
+    const r = new SR(); r.lang = 'en-GB'; r.interimResults = false; r.maxAlternatives = 1;
+    let got = false;
+    r.onresult = e => { got = true; res(e.results[0][0].transcript); };
+    r.onerror = e => rej(e.error || 'err');
+    r.onend = () => { if (!got) rej('empty'); };
+    try { r.start(); } catch (e) { rej('err'); }
+  });
+}
+function sayBtn(text, dialog) { return `<button class="say" type="button" aria-label="Ascolta" data-say="${esc(text)}"${dialog ? ' data-dialog="1"' : ''}>${ICON.say}</button>`; }
+document.addEventListener('click', e => { const b = e.target.closest('[data-say]'); if (b) speak(b.dataset.say, { dialog: !!b.dataset.dialog }); });
+
+/* ---------- AI (Gemini, facoltativa) ---------- */
+const aiCfg = () => S('ec-ai') || {};
+const aiOn = () => !!(aiCfg().key && aiCfg().model);
+async function ai(system, turns, json) {
+  const c = aiCfg();
+  const body = {
+    systemInstruction: { parts: [{ text: system }] },
+    contents: turns.map(t => ({ role: t.role === 'ai' ? 'model' : 'user', parts: [{ text: t.text }] })),
+    generationConfig: Object.assign({ temperature: 0.6 }, json ? { responseMimeType: 'application/json' } : {})
+  };
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.model)}:generateContent`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': c.key }, body: JSON.stringify(body)
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+  const txt = ((j.candidates || [])[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+  if (!json) return txt;
+  try { return JSON.parse(txt.replace(/^```(json)?|```$/g, '')); } catch (e) { throw new Error('Risposta AI non leggibile'); }
+}
+async function aiModels(key) {
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': key } });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+  const ver = n => (n.match(/(\d+(?:\.\d+)?)/) || [0, 0])[1] * 1;
+  return (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+    .map(m => m.name.replace(/^models\//, ''))
+    .filter(n => /gemini/i.test(n) && !/(tts|image|live|embedding|audio|transcribe|translate|vision)/i.test(n))
+    .sort((a, b) => (/flash/.test(b) - /flash/.test(a)) || (/lite/.test(a) - /lite/.test(b)) || (ver(b) - ver(a)) || (/preview|exp/.test(a) - /preview|exp/.test(b)));
+}
+
+/* ---------- Profilo, tempi, avanzamento ---------- */
+const profile = () => S('ec-profile');
+const lvName = l => l === 'A0' ? 'pre-A1' : l;
+function levelOfHours(h) { let l = 'A0'; LEVELS.forEach(x => { if (LEVEL_H[x] <= h + 0.01) l = x; }); return l; }
+function secOnDays(n) { const t = S('ec-time') || {}; let s = 0; for (let i = 0; i < n; i++) s += t[addDays(today(), -i)] || 0; return s; }
+function totalSec() { return Object.values(S('ec-time') || {}).reduce((a, b) => a + b, 0); }
+function estimate() {
+  const p = profile(); if (!p) return null;
+  const need = Math.max(1, (LEVEL_H[p.goal] - p.startH) * (p.adj || 1));
+  const doneH = totalSec() / 3600;
+  const remaining = Math.max(0, need - doneH);
+  const planned = p.min * p.days / 60;
+  const t = S('ec-time') || {}, daysWith = Object.keys(t).filter(d => d >= addDays(today(), -13) && t[d] > 120).length;
+  const real = secOnDays(14) / 3600 / 2;
+  const pace = daysWith >= 4 && real > 0 ? real : planned;
+  const weeks = remaining / pace;
+  return { need, doneH, remaining, pct: Math.min(100, doneH / need * 100), planned, real, pace, usingReal: pace !== planned, eta: addDays(today(), Math.ceil(weeks * 7)), weeks, nowLevel: levelOfHours(p.startH + doneH) };
+}
+function streak() { const d = S('ec-days') || {}; let n = 0, k = today(); if (!d[k]) k = addDays(k, -1); while (d[k]) { n++; k = addDays(k, -1); } return n; }
+const doneMap = () => S('ec-done') || {};
+function lessonBlocks(L) { return L.weekly ? [] : ['fc', 'gr', 'li', 'sp', L.translate ? 'tr' : 'qz']; }
+function lessonComplete(L) { if (L.weekly) return !!(S('ec-quiz') || {})['w' + L.w]; const m = doneMap()[L.id] || {}; return lessonBlocks(L).every(b => m[b]); }
+function currentLesson() { return LESSONS.find(L => !lessonComplete(L)) || null; }
+function markBlock(L, b) {
+  const m = doneMap(); m[L.id] = m[L.id] || {}; m[L.id][b] = today(); S('ec-done', m);
+  if (lessonComplete(L)) { const d = S('ec-days') || {}; d[today()] = L.id; S('ec-days', d); }
+}
+function logError(r, you, ok, src) { const e = S('ec-errors') || []; e.push({ d: today(), r, you, ok, src, w: SESSION ? SESSION.L.w : 0 }); while (e.length > 600) e.shift(); S('ec-errors', e); }
+function ruleStat(r, good) { const s = S('ec-stats') || {}; s[r] = s[r] || { ok: 0, ko: 0 }; s[r][good ? 'ok' : 'ko']++; S('ec-stats', s); }
+
+/* ---------- Tempo di studio: conta solo mentre la sessione è aperta e la usi ---------- */
+let lastInput = Date.now();
+['pointerdown', 'keydown', 'input'].forEach(ev => document.addEventListener(ev, () => lastInput = Date.now(), true));
+let pendingSec = 0;
+setInterval(() => {
+  if (!SESSION || document.hidden) return;
+  const speaking = (() => { try { return speechSynthesis.speaking; } catch (e) { return false; } })();
+  if (Date.now() - lastInput > 120000 && !speaking) return;
+  pendingSec++; SESSION.sec++;
+  const el = $('#stimer'); if (el) el.textContent = mmss(SESSION.sec);
+  if (pendingSec >= 5) flushTime();
+}, 1000);
+function flushTime() { if (!pendingSec) return; const t = S('ec-time') || {}; t[today()] = (t[today()] || 0) + pendingSec; S('ec-time', t); pendingSec = 0; }
+const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+
+/* ---------- Flashcard: ripetizione dilazionata (SM-2 semplificato) ---------- */
+const cardsAll = () => S('ec-cards') || {};
+function addCards(L) {
+  const c = cardsAll(); let n = 0;
+  (L.cards || []).forEach((x, i) => { const id = L.id + '-' + i; if (!c[id]) { c[id] = Object.assign({ id, due: today(), iv: 0, ef: 2.5, reps: 0, lapses: 0, w: L.w, isNew: true }, x); n++; } });
+  S('ec-cards', c); return n;
+}
+function addCustomCard(en, it, ex) {
+  const c = cardsAll(); const id = 'x-' + norm(en).replace(/\W+/g, '-').slice(0, 40);
+  if (c[id]) return false;
+  c[id] = { id, en, it, ex: ex ? [ex] : [], due: today(), iv: 0, ef: 2.5, reps: 0, lapses: 0, w: SESSION ? SESSION.L.w : 0, isNew: true, auto: true };
+  S('ec-cards', c); return true;
+}
+function dueCards() { const t = today(); return Object.values(cardsAll()).filter(c => c.due <= t); }
+function gradeCard(id, g) { // g: 0 di nuovo, 1 difficile, 2 bene, 3 facile
+  const c = cardsAll(), k = c[id]; if (!k) return;
+  k.isNew = false;
+  if (g === 0) { k.reps = 0; k.iv = 0; k.lapses++; k.ef = Math.max(1.3, k.ef - 0.2); k.due = today(); }
+  else {
+    if (g === 1) { k.iv = Math.max(1, Math.round((k.iv || 1) * 1.2)); k.ef = Math.max(1.3, k.ef - 0.15); }
+    else if (g === 2) { k.iv = k.reps === 0 ? 1 : k.reps === 1 ? 3 : Math.round(k.iv * k.ef); }
+    else { k.iv = k.reps === 0 ? 3 : Math.round(Math.max(k.iv, 1) * k.ef * 1.3); k.ef += 0.15; }
+    k.reps++; k.due = addDays(today(), k.iv);
+  }
+  S('ec-cards', c);
+}
+const nextIv = (k, g) => g === 0 ? 'oggi' : g === 1 ? Math.max(1, Math.round((k.iv || 1) * 1.2)) + ' g' : g === 2 ? (k.reps === 0 ? 1 : k.reps === 1 ? 3 : Math.round(k.iv * k.ef)) + ' g' : (k.reps === 0 ? 3 : Math.round(Math.max(k.iv, 1) * k.ef * 1.3)) + ' g';
+
+/* ---------- Scheda di correzione (dopo ogni errore, in inglese) ---------- */
+function filled(item, ans) { return item.q.includes('___') ? item.q.replace(/___\s*(\([^)]*\))?/, ans) : ans; }
+function correctText(item) { return item.o ? item.o[item.a] : item.a[0]; }
+function correctionHTML(rid, you, ok, extra) {
+  const R = RULES[rid];
+  let h = `<div class="tag">Correction</div>
+    <div class="list"><div class="res ko"><small class="muted">Your answer</small><span>${esc(you || '(no answer)')}</span></div>
+    <div class="res ok"><small class="muted">Correct</small><b>${esc(ok)}</b></div></div>`;
+  if (extra) h += `<p>${esc(extra)}</p>`;
+  if (R) {
+    h += `<div class="card rule"><h3>${esc(R.t)}</h3><p>${esc(R.ex)}</p>
+      <div class="eg">${R.eg.map(x => `<div>${sayBtn(x)}<span>${esc(x)}</span></div>`).join('')}</div></div>
+      <h3>3 common mistakes Italians make</h3>
+      <div class="mist">${R.common.map(([w, r]) => `<div><s>${esc(w)}</s><b>✓ ${esc(r)}</b></div>`).join('')}</div>`;
+  }
+  return h;
+}
+function showModal(html, btn = 'Got it') {
+  return new Promise(res => {
+    const m = document.createElement('div'); m.className = 'modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+    m.innerHTML = `<div class="sheet">${html}<button class="btn block" type="button" data-close>${btn}</button></div>`;
+    document.body.appendChild(m);
+    m.querySelector('[data-close]').focus();
+    m.querySelector('[data-close]').onclick = () => { m.remove(); res(); };
+  });
+}
+function vocabCorrection(item, you) {
+  const ok = correctText(item), w = norm(ok);
+  const c = Object.values(cardsAll()).find(k => norm(k.en).replace(/^to /, '') === w.replace(/^to /, '') || norm(k.en) === w);
+  let h = `<div class="tag">Correction</div><div class="list"><div class="res ko"><small class="muted">Your answer</small><span>${esc(filled(item, you))}</span></div><div class="res ok"><small class="muted">Correct</small><b>${esc(filled(item, ok))}</b></div></div>`;
+  if (c) h += `<div class="card"><h3>${esc(c.en)} = ${esc(c.it)}</h3><div class="eg">${(c.ex || []).map(x => `<div>${sayBtn(x)}<span>${esc(x)}</span></div>`).join('')}</div></div>`;
+  return h;
+}
+
+/* ---------- Domanda singola (scelta multipla o da scrivere) ---------- */
+function questionUI(host, item, onDone, opts = {}) {
+  host.innerHTML = `${opts.head || ''}<p class="q">${esc(item.q)}</p>${item.listen ? `<div class="row">${sayBtn(item.listen)}<span class="muted small">Ascolta (puoi ripetere)</span></div>` : ''}
+    ${item.o ? `<div class="opts">${(item.shuf || (item.shuf = shuffle(item.o.map((_, i) => i)))).map(i => `<button class="opt" type="button" data-i="${i}">${esc(item.o[i])}</button>`).join('')}</div>`
+      : `<input class="txt" id="qin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Scrivi la risposta"><button class="btn block" type="button" id="qok">Controlla</button>`}
+    <div id="qfb"></div>`;
+  if (item.listen) setTimeout(() => speak(item.listen), 300);
+  const finish = (good, you) => {
+    if (opts.silent) { onDone(good, you); return; }
+    const fb = host.querySelector('#qfb');
+    fb.innerHTML = good ? `<div class="fb ok">Correct!</div><button class="btn block" type="button" id="qnext">Continua</button>`
+      : `<div class="fb ko">Not quite. Correct: ${esc(correctText(item))}</div><button class="btn block" type="button" id="qnext">Continua</button>`;
+    const go = () => onDone(good, you);
+    host.querySelector('#qnext').onclick = go;
+    if (!good) {
+      const rid = item.r || opts.rule;
+      if (rid === 'vocab') showModal(vocabCorrection(item, you));
+      else if (RULES[rid]) showModal(correctionHTML(rid, filled(item, you), filled(item, correctText(item))));
+    }
+  };
+  if (item.o) host.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i, good = i === item.a;
+    host.querySelectorAll('.opt').forEach(x => { x.disabled = true; if (!opts.silent) { if (+x.dataset.i === item.a) x.classList.add('ok'); else if (x === b) x.classList.add('ko'); } else if (x === b) x.classList.add('sel'); });
+    finish(good, item.o[i]);
+  });
+  else {
+    const inp = host.querySelector('#qin'); inp.focus();
+    const check = () => { const v = inp.value.trim(); if (!v) return; inp.disabled = true; host.querySelector('#qok').remove(); finish(item.a.some(a => norm(a) === norm(v)), v); };
+    host.querySelector('#qok').onclick = check; inp.onkeydown = e => { if (e.key === 'Enter') check(); };
+  }
+}
+
+/* ---------- Sessione ---------- */
+let SESSION = null;
+function openSession(L, only) {
+  SESSION = { L, sec: 0, blocks: only ? [only] : lessonBlocks(L).filter(b => !(doneMap()[L.id] || {})[b]), i: 0, stats: { ok: 0, ko: 0 } };
+  if (!SESSION.blocks.length) SESSION.blocks = lessonBlocks(L);
+  if (L.weekly) SESSION.blocks = ['wq'];
+  $('#session').classList.add('on'); document.body.style.overflow = 'hidden';
+  runBlock();
+}
+function closeSession() { flushTime(); try { speechSynthesis.cancel(); } catch (e) { } SESSION = null; $('#session').classList.remove('on'); document.body.style.overflow = ''; render(); }
+function shell(title, sub) {
+  const s = SESSION, n = s.blocks.length;
+  $('#session').innerHTML = `<div class="in"><div class="shead"><button class="x" type="button" id="sx" aria-label="Chiudi">✕</button>
+    <div class="t"><b>${esc(title)}</b><small>${esc(sub || s.L.title)}</small></div><span class="timer" id="stimer">${mmss(s.sec)}</span></div>
+    ${n > 1 ? `<div class="steps">${s.blocks.map((b, i) => `<i class="${i < s.i ? 'done' : i === s.i ? 'on' : ''}"></i>`).join('')}</div>` : ''}
+    <div id="sbody" class="stack"></div></div>`;
+  $('#sx').onclick = closeSession;
+  $('#session').scrollTop = 0;
+  return $('#sbody');
+}
+function blockDone(b) {
+  markBlock(SESSION.L, b); SESSION.i++;
+  if (SESSION.i < SESSION.blocks.length) runBlock(); else sessionEnd();
+}
+function runBlock() { const b = SESSION.blocks[SESSION.i]; ({ fc: blockFlash, gr: blockGrammar, li: blockListen, sp: blockSpeak, qz: blockQuiz, tr: blockTranslate, wq: blockWeekly })[b](); }
+function sessionEnd() {
+  flushTime();
+  const s = SESSION, L = s.L, complete = lessonComplete(L), e = estimate();
+  const body = shell(complete ? 'Sessione completata' : 'Blocco completato');
+  const tot = s.stats.ok + s.stats.ko;
+  body.innerHTML = `<div class="card"><div class="tag">${esc(L.title)}</div><h2>${complete ? 'Ottimo lavoro!' : 'Fatto.'}</h2>
+    <div class="kv"><div><b>${mmss(s.sec)}</b><small>minuti</small></div><div><b>${tot ? Math.round(s.stats.ok / tot * 100) + '%' : '–'}</b><small>risposte giuste</small></div><div><b>${streak()}</b><small>giorni di fila</small></div></div>
+    ${e ? `<p class="small muted">Percorso verso ${profile().goal}: ${e.pct.toFixed(1)}% · arrivo stimato ${fmtDate(e.eta)}</p>` : ''}</div>
+    <button class="btn block" type="button" id="send">Torna alla home</button>`;
+  $('#send').onclick = closeSession;
+}
+
+/* Blocco 1: flashcard */
+function blockFlash() {
+  const L = SESSION.L; addCards(L);
+  const t = today(), c = cardsAll();
+  const fresh = Object.values(c).filter(k => k.id.startsWith(L.id + '-') && k.isNew);
+  const due = Object.values(c).filter(k => k.due <= t && !(k.id.startsWith(L.id + '-') && k.isNew)).sort((a, b) => a.due < b.due ? -1 : 1).slice(0, 25);
+  let queue = [...due.map(k => k.id), ...fresh.map(k => k.id)], again = {};
+  const body = shell('Flashcard', `${queue.length} carte · ${fresh.length} nuove`);
+  const show = () => {
+    if (!queue.length) { body.innerHTML = `<div class="card"><h2>Carte finite</h2><p class="muted">Le rivedrai quando l'algoritmo le rimette in scadenza.</p></div><button class="btn block" type="button" id="nx">Continua: Grammatica</button>`; $('#nx').onclick = () => blockDone('fc'); return; }
+    const k = cardsAll()[queue[0]];
+    body.innerHTML = `<p class="small muted">${queue.length} rimaste${k.isNew ? ' · nuova' : ''}</p>
+      <div class="card flash"><div class="w">${esc(k.en)}</div>${sayBtn(k.en)}<div id="back" class="hidden stack" style="justify-items:center">
+      <div class="q">${esc(k.it)}</div><div class="eg" style="text-align:left">${(k.ex || []).map(x => `<div>${sayBtn(x)}<span>${esc(x)}</span></div>`).join('')}</div></div></div>
+      <button class="btn block" type="button" id="flip">Mostra significato ed esempi</button>
+      <div class="grade hidden" id="gr">${['Di nuovo', 'Difficile', 'Bene', 'Facile'].map((g, i) => `<button type="button" data-g="${i}">${g}<small>${nextIv(k, i)}</small></button>`).join('')}</div>`;
+    setTimeout(() => speak(k.en), 200);
+    $('#flip').onclick = () => { $('#back').classList.remove('hidden'); $('#flip').classList.add('hidden'); $('#gr').classList.remove('hidden'); speak(k.ex && k.ex[0] || k.en); };
+    body.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+      const g = +b.dataset.g, id = queue.shift(); gradeCard(id, g);
+      if (g === 0 && !again[id]) { again[id] = 1; queue.push(id); }
+      show();
+    });
+  };
+  show();
+}
+
+/* Blocco 2: grammatica (regola + esercizi + mini-punto su articoli/preposizioni) */
+function weakItems(L) {
+  const weak = (S('ec-weak') || []).filter(r => RULES[r]);
+  return weak.slice(0, 2).map(r => Object.assign({ r, weak: true }, shuffle(RULES[r].pool)[0]));
+}
+function ruleCardHTML(rid, mini) {
+  const R = RULES[rid];
+  return `<div class="card rule"><div class="tag">${mini ? 'Mini-point' : 'Grammar'}</div><h2>${esc(R.t)}</h2><p>${esc(R.ex)}</p>
+    <div class="eg">${R.eg.map(x => `<div>${sayBtn(x)}<span>${esc(x)}</span></div>`).join('')}</div>
+    <details><summary>3 common mistakes Italians make</summary><div class="mist" style="margin-top:8px">${R.common.map(([w, r]) => `<div><s>${esc(w)}</s><b>✓ ${esc(r)}</b></div>`).join('')}</div></details></div>`;
+}
+function blockGrammar() {
+  const L = SESSION.L, body = shell('Grammatica', L.review ? 'Ripasso misto' : RULES[L.rule].t);
+  const items = [...weakItems(L), ...L.items.map(x => Object.assign({ r: x.r || L.rule }, x)), ...(L.extraItems || []).map(x => Object.assign({ r: L.extra, isExtra: true }, x))];
+  let i = -1;
+  const intro = () => {
+    body.innerHTML = (L.review ? `<div class="card"><div class="tag">Review</div><h2>Ripasso della settimana</h2><p>Esercizi misti su tutte le regole della settimana. Se sbagli, si apre la scheda con la regola.</p></div>` : ruleCardHTML(L.rule)) + `<button class="btn block" type="button" id="go">Inizia gli esercizi (${items.length})</button>`;
+    $('#go').onclick = next;
+  };
+  const next = () => {
+    i++;
+    if (i >= items.length) { blockDone('gr'); return; }
+    const it = items[i];
+    if (it.isExtra && !items[i - 1].isExtra && !it.shownMini) {
+      it.shownMini = true; i--;
+      body.innerHTML = ruleCardHTML(L.extra, true) + `<button class="btn block" type="button" id="go">Continua</button>`;
+      $('#go').onclick = next; return;
+    }
+    questionUI(body, it, (good, you) => { SESSION.stats[good ? 'ok' : 'ko']++; ruleStat(it.r, good); if (!good) logError(it.r, filled(it, you), filled(it, correctText(it)), 'grammar'); next(); },
+      { head: `<p class="small muted">${i + 1} / ${items.length}${it.weak ? ' · ripasso punto debole' : ''}${it.isExtra ? ' · mini-point' : ''}</p>` });
+  };
+  intro();
+}
+
+/* Blocco 3: ascolto */
+function blockListen() {
+  const L = SESSION.L, X = L.listen, body = shell('Ascolto', X.title);
+  let plays = 0;
+  body.innerHTML = `<div class="card"><div class="tag">Listening</div><h2>${esc(X.title)}</h2><p class="muted small">Ascolta due volte senza leggere, poi rispondi. Il testo compare alla fine.</p>
+    <div class="row"><button class="btn" type="button" id="play">▶ Ascolta</button><button class="btn soft sm" type="button" id="slow">Più lento</button><span class="muted small" id="pc">0 ascolti</span></div></div>
+    <div class="stack" id="lq">${X.qs.map((q, n) => `<div class="card"><p class="q">${n + 1}. ${esc(q.q)}</p><div class="opts">${q.o.map((o, i) => `<button class="opt" type="button" data-q="${n}" data-i="${i}">${esc(o)}</button>`).join('')}</div></div>`).join('')}</div>
+    <button class="btn block" type="button" id="chk" disabled>Controlla le risposte</button><div id="lres"></div>`;
+  const ans = {};
+  const play = rate => { plays++; $('#pc').textContent = plays + (plays === 1 ? ' ascolto' : ' ascolti'); speak(X.text, { dialog: true, rate }); };
+  $('#play').onclick = () => play(); $('#slow').onclick = () => play(0.75);
+  body.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+    const q = +b.dataset.q; ans[q] = +b.dataset.i;
+    body.querySelectorAll(`[data-q="${q}"]`).forEach(x => x.classList.toggle('sel', x === b));
+    $('#chk').disabled = Object.keys(ans).length < X.qs.length;
+  });
+  $('#chk').onclick = () => {
+    try { speechSynthesis.cancel(); } catch (e) { }
+    let ok = 0;
+    X.qs.forEach((q, n) => {
+      const good = ans[n] === q.a; ok += good; SESSION.stats[good ? 'ok' : 'ko']++; ruleStat('listening', good);
+      if (!good) logError('listening', q.o[ans[n]], q.o[q.a], X.title + ': ' + q.q);
+      body.querySelectorAll(`[data-q="${n}"]`).forEach(x => { x.disabled = true; x.classList.remove('sel'); if (+x.dataset.i === q.a) x.classList.add('ok'); else if (+x.dataset.i === ans[n]) x.classList.add('ko'); });
+    });
+    $('#chk').remove();
+    $('#lres').innerHTML = `<div class="fb ${ok >= 3 ? 'ok' : 'ko'}">${ok} / ${X.qs.length} giuste</div>
+      <div class="card"><div class="row"><h3 class="grow">Transcript</h3>${sayBtn(X.text, true)}</div><p>${esc(X.text).replace(/([A-Z][a-z]+): /g, '<br><b>$1:</b> ').replace(/^<br>/, '')}</p></div>
+      <button class="btn block" type="button" id="nx">Continua: Parlato</button>`;
+    $('#nx').onclick = () => blockDone('li');
+  };
+}
+
+/* Blocco 4: parlato (con AI se configurata, altrimenti guidato) */
+function micArea(id) { return `<button class="mic" type="button" id="${id}" aria-label="Parla">${ICON.mic}</button>`; }
+async function captureInto(btn, inp) {
+  if (!SR) { toast('Riconoscimento vocale non disponibile: scrivi la risposta.'); inp.focus(); return null; }
+  btn.classList.add('on');
+  try { const t = await listen(); inp.value = (inp.value ? inp.value + ' ' : '') + t; return t; }
+  catch (e) { toast(e === 'not-allowed' ? 'Consenti il microfono nelle impostazioni del browser.' : 'Non ho sentito: riprova.'); return null; }
+  finally { btn.classList.remove('on'); }
+}
+function blockSpeak() { aiOn() ? speakAI() : speakGuided(); }
+function speakGuided() {
+  const L = SESSION.L, X = L.speak, body = shell('Parlato', X.topic);
+  let n = 0; const answers = [];
+  const step = () => {
+    if (n >= X.qs.length) return finish();
+    const q = X.qs[n];
+    body.innerHTML = `<div class="card"><div class="tag">Speaking · ${n + 1}/${X.qs.length}</div><div class="row">${sayBtn(q)}<p class="q grow">${esc(q)}</p></div>
+      <p class="small muted">Rispondi a voce con frasi complete (almeno 2). Regola da usare: ${esc(RULES[X.target].t)}.</p></div>
+      ${micArea('mic')}<textarea class="txt" id="ans" placeholder="La tua risposta compare qui (puoi anche scriverla)"></textarea>
+      <button class="btn block" type="button" id="nx">Avanti</button>
+      ${!aiOn() ? '<p class="small muted">Per una conversazione vera con correzione delle tue frasi, aggiungi la chiave AI gratuita in Profilo.</p>' : ''}`;
+    setTimeout(() => speak(q), 250);
+    $('#mic').onclick = () => captureInto($('#mic'), $('#ans'));
+    $('#nx').onclick = () => { answers.push([q, $('#ans').value.trim()]); n++; step(); };
+  };
+  const finish = () => {
+    body.innerHTML = `<div class="card"><div class="tag">Your answers</div><div class="list">${answers.map(([q, a]) => `<div class="res"><small class="muted">${esc(q)}</small><span>${esc(a || '—')}</span></div>`).join('')}</div></div>
+      <div class="card rule"><div class="tag">Model answer</div><div class="row">${sayBtn(X.model)}<p class="grow">${esc(X.model)}</p></div>
+      <p class="small muted">Confronta con le tue frasi, poi ascolta e ripeti il modello ad alta voce (shadowing) due volte.</p></div>
+      <button class="btn block" type="button" id="nx">Continua</button>`;
+    $('#nx').onclick = () => blockDone('sp');
+  };
+  step();
+}
+function tutorSystem(X, lvl) {
+  return `You are a warm, patient English speaking tutor for Andrea, an Italian adult at CEFR level ${lvl}. He works in logistics and plays amateur football.
+Topic of today's conversation: "${X.topic}". Target grammar: ${RULES[X.target].t}.
+Rules: reply in simple English (level ${lvl}), maximum 2 short sentences, then ask ONE follow-up question. Do not correct him during the conversation; just keep it natural and recast his mistakes in your reply. Never use lists, emoji or markdown. Start by greeting him and asking the first question.`;
+}
+function speakAI() {
+  const L = SESSION.L, X = L.speak, p = profile(), lvl = estimate()?.nowLevel || p.level || 'A2';
+  const body = shell('Parlato con AI', X.topic);
+  const turns = []; const sys = tutorSystem(X, lvl);
+  body.innerHTML = `<div class="card"><div class="tag">Conversation · 7 min</div><p>${esc(X.topic)}</p><p class="small muted">Tocca il microfono e parla. Alla fine premi "Termina e correggi" per la correzione delle tue frasi.</p></div>
+    <div class="chat" id="chat"></div><div id="typing" class="muted small hidden">Il tutor sta scrivendo…</div>
+    ${micArea('mic')}<div class="row"><input class="txt grow" id="ans" placeholder="Oppure scrivi qui"><button class="btn sm" type="button" id="send">Invia</button></div>
+    <button class="btn block ghost" type="button" id="end">Termina e correggi</button>`;
+  const chat = $('#chat');
+  const add = (role, text) => { turns.push({ role, text }); chat.insertAdjacentHTML('beforeend', `<div class="msg ${role === 'ai' ? 'ai' : 'me'}">${esc(text)}</div>`); chat.lastElementChild.scrollIntoView({ block: 'nearest' }); };
+  const ask = async () => {
+    $('#typing').classList.remove('hidden');
+    try { const r = await ai(sys, turns.length ? turns : [{ role: 'user', text: 'Hi! I am ready.' }]); add('ai', r); speak(r); }
+    catch (e) { add('ai', 'Errore AI: ' + e.message + '. Controlla la chiave in Profilo.'); }
+    $('#typing').classList.add('hidden');
+  };
+  const sendText = t => { t = (t || '').trim(); if (!t) return; add('me', t); $('#ans').value = ''; ask(); };
+  $('#mic').onclick = async () => { const t = await captureInto($('#mic'), $('#ans')); if (t) sendText($('#ans').value); };
+  $('#send').onclick = () => sendText($('#ans').value);
+  $('#ans').onkeydown = e => { if (e.key === 'Enter') sendText($('#ans').value); };
+  $('#end').onclick = async () => {
+    const mine = turns.filter(t => t.role === 'me').map(t => t.text);
+    if (!mine.length) { blockDone('sp'); return; }
+    try { speechSynthesis.cancel(); } catch (e) { }
+    body.innerHTML = '<div class="card"><p>Sto correggendo le tue frasi…</p></div>';
+    try {
+      const r = await ai(`You are an expert English teacher for Italian learners (level ${lvl}). Correct the learner's sentences. Return JSON only:
+{"score":1-10,"summary":"one short sentence in simple English","errors":[{"you":"original sentence","correct":"corrected sentence","rule":"rule name","explanation":"the rule in 1-2 simple English sentences","examples":["example 1","example 2"],"common":[["typical Italian mistake","correct"],["...","..."],["...","..."]]}],"good":["a sentence he said well"]}
+Include only real mistakes (max 6). If a sentence is correct, do not include it.`, [{ role: 'user', text: 'Learner sentences:\n' + mine.map((m, i) => (i + 1) + '. ' + m).join('\n') }], true);
+      const errs = r.errors || [];
+      errs.forEach(e => { logError('speaking', e.you, e.correct, e.rule); SESSION.stats.ko++; });
+      SESSION.stats.ok += Math.max(0, mine.length - errs.length);
+      body.innerHTML = `<div class="card"><div class="tag">Feedback</div><div class="big">${esc(r.score ?? '–')}<small style="font-size:1rem">/10</small></div><p>${esc(r.summary || '')}</p></div>
+        ${errs.map(e => `<div class="card"><div class="res ko"><small class="muted">You said</small><span>${esc(e.you)}</span></div><div class="res ok"><small class="muted">Correct</small><b>${esc(e.correct)}</b></div>
+          <h3>${esc(e.rule)}</h3><p>${esc(e.explanation)}</p><div class="eg">${(e.examples || []).map(x => `<div>${sayBtn(x)}<span>${esc(x)}</span></div>`).join('')}</div>
+          ${(e.common || []).length ? `<details><summary>3 common mistakes Italians make</summary><div class="mist" style="margin-top:8px">${e.common.map(c => `<div><s>${esc(c[0])}</s><b>✓ ${esc(c[1])}</b></div>`).join('')}</div></details>` : ''}</div>`).join('') || '<div class="fb ok">No mistakes. Well done!</div>'}
+        ${(r.good || []).length ? `<div class="card"><div class="tag">Well said</div>${r.good.map(g => `<p>✓ ${esc(g)}</p>`).join('')}</div>` : ''}
+        <button class="btn block" type="button" id="nx">Continua</button>`;
+    } catch (e) { body.innerHTML = `<div class="fb ko">Correzione non riuscita: ${esc(e.message)}</div><button class="btn block" type="button" id="nx">Continua</button>`; }
+    $('#nx').onclick = () => blockDone('sp');
+  };
+  ask();
+}
+
+/* Blocco 5a: quiz rapido */
+function runItems(body, items, label, onEnd) {
+  let i = 0, ok = 0;
+  const next = () => {
+    if (i >= items.length) return onEnd(ok);
+    const it = items[i];
+    questionUI(body, it, (good, you) => { ok += good; SESSION.stats[good ? 'ok' : 'ko']++; ruleStat(it.r, good); if (!good) logError(it.r, filled(it, you), filled(it, correctText(it)), label); i++; next(); },
+      { head: `<p class="small muted">${label} · ${i + 1} / ${items.length}</p>` });
+  };
+  next();
+}
+function blockQuiz() {
+  const L = SESSION.L, body = shell('Quiz rapido');
+  runItems(body, L.quiz, 'Quiz rapido', ok => {
+    body.innerHTML = `<div class="card"><div class="big">${ok}/${L.quiz.length}</div><p>${ok === L.quiz.length ? 'Perfetto!' : 'Le regole sbagliate tornano nel ripasso.'}</p></div><button class="btn block" type="button" id="nx">Continua</button>`;
+    $('#nx').onclick = () => blockDone('qz');
+  });
+}
+
+/* Blocco 5b: traduzione dall'italiano */
+function blockTranslate() {
+  const L = SESSION.L, X = L.translate, body = shell('Traduzione', X.title);
+  body.innerHTML = `<div class="card"><div class="tag">Translation · ${esc(X.title)}</div><p>${esc(X.it)}</p><p class="small muted">Traduci tutto il testo in inglese. Niente traduttori: se non conosci una parola, prova a dirla in un altro modo.</p></div>
+    <textarea class="txt" id="tr" placeholder="Write your translation here…" spellcheck="false"></textarea>
+    <button class="btn block" type="button" id="chk">Correggi</button><div id="tres" class="stack"></div>`;
+  $('#chk').onclick = async () => {
+    const v = $('#tr').value.trim(); if (v.split(/\s+/).length < 15) { toast('Traduci tutto il testo prima di correggere.'); return; }
+    $('#chk').disabled = true; $('#tr').disabled = true;
+    const out = $('#tres');
+    let html = '';
+    if (aiOn()) {
+      out.innerHTML = '<div class="card"><p>Sto correggendo…</p></div>';
+      try {
+        const r = await ai(`You are an expert English teacher for Italian learners (level ${estimate()?.nowLevel || 'A2'}). The learner translated an Italian text into English. Correct it. Return JSON only:
+{"score":1-10,"vocabulary":[{"you":"word/phrase used","better":"correct word/phrase","why":"short simple English explanation"}],"sentences":[{"you":"original sentence","correct":"corrected sentence","rule":"rule name","why":"rule in 1-2 simple English sentences"}],"comprehension":"one or two sentences: did he understand and keep the meaning of the Italian text?","improved":"the full improved translation"}`,
+          [{ role: 'user', text: 'Italian text:\n' + X.it + '\n\nLearner translation:\n' + v }], true);
+        (r.vocabulary || []).forEach(x => { logError('vocab', x.you, x.better, 'translation'); addCustomCard(x.better, x.why || '', ''); });
+        (r.sentences || []).forEach(x => logError('translation', x.you, x.correct, x.rule));
+        html = `<div class="card"><div class="tag">Score</div><div class="big">${esc(r.score)}<small style="font-size:1rem">/10</small></div><p>${esc(r.comprehension || '')}</p></div>
+          ${(r.vocabulary || []).length ? `<div class="card"><h3>Vocabulary</h3><div class="mist">${r.vocabulary.map(x => `<div><s>${esc(x.you)}</s><b>✓ ${esc(x.better)}</b><span class="small">${esc(x.why)}</span></div>`).join('')}</div><p class="small muted">Le parole corrette sono diventate flashcard.</p></div>` : ''}
+          ${(r.sentences || []).length ? `<div class="card"><h3>Sentences</h3><div class="mist">${r.sentences.map(x => `<div><s>${esc(x.you)}</s><b>✓ ${esc(x.correct)}</b><span class="small"><b style="color:inherit">${esc(x.rule)}:</b> ${esc(x.why)}</span></div>`).join('')}</div></div>` : ''}
+          <div class="card rule"><div class="tag">Improved version</div><div class="row">${sayBtn(r.improved || X.model)}<p class="grow">${esc(r.improved || X.model)}</p></div></div>`;
+      } catch (e) { html = `<div class="fb ko">AI non raggiungibile (${esc(e.message)}): uso la correzione automatica.</div>`; }
+    }
+    if (!html || html.startsWith('<div class="fb ko">')) {
+      const t = norm(v);
+      const res = X.keys.map(k => ({ k, hit: new RegExp(k.re, 'i').test(t) }));
+      const hit = res.filter(r => r.hit).length, score = Math.max(1, Math.round(hit / res.length * 10));
+      res.filter(r => !r.hit).forEach(r => { addCustomCard(r.k.en, r.k.it, ''); logError('translation', '', r.k.en, X.title); });
+      html += `<div class="card"><div class="tag">Score (correzione automatica)</div><div class="big">${score}<small style="font-size:1rem">/10</small></div><p class="small muted">Controllo dei ${res.length} punti chiave del testo. Con la chiave AI in Profilo ricevi la correzione completa frase per frase.</p></div>
+        <div class="card"><h3>Punti chiave</h3><div class="list">${res.map(r => `<div class="res ${r.hit ? 'ok' : 'ko'}"><b>${r.hit ? '✓' : '✗'} ${esc(r.k.en)}</b><span class="small">${esc(r.k.it)} — ${esc(r.k.note)}</span></div>`).join('')}</div>
+        ${res.some(r => !r.hit) ? '<p class="small muted">Le espressioni mancanti sono diventate flashcard.</p>' : ''}</div>
+        <div class="card rule"><div class="tag">Model translation</div><div class="row">${sayBtn(X.model)}<p class="grow">${esc(X.model)}</p></div></div>`;
+    }
+    out.innerHTML = html + `<div class="card"><h3>Comprehension</h3><p class="small muted">3 domande sul testo.</p></div><div id="cq"></div>`;
+    const cq = $('#cq');
+    runItems(cq, X.qs.map(q => Object.assign({ r: 'comprehension' }, q)), 'Comprensione', ok => {
+      cq.innerHTML = `<div class="fb ${ok >= 2 ? 'ok' : 'ko'}">Comprensione: ${ok}/${X.qs.length}</div><button class="btn block" type="button" id="nx">Continua</button>`;
+      $('#nx').onclick = () => blockDone('tr');
+    });
+  };
+}
+
+/* Quiz settimanale: 10 domande, risposte alla fine, punti deboli */
+function weekRules(w) { const s = new Set(); LESSONS.filter(L => L.w === w && !L.weekly).forEach(L => { if (!L.review) s.add(L.rule); if (L.extra) s.add(L.extra); (L.items || []).forEach(i => i.r && s.add(i.r)); }); return [...s]; }
+function buildWeekly(w) {
+  const rules = weekRules(w), errs = (S('ec-errors') || []).filter(e => e.w === w && RULES[e.r]);
+  const weight = r => 1 + errs.filter(e => e.r === r).length;
+  const pickRules = shuffle(rules).sort((a, b) => weight(b) - weight(a)).slice(0, 4);
+  const qs = pickRules.map(r => Object.assign({ r, kind: 'Grammar' }, shuffle(RULES[r].pool)[0]));
+  const cards = shuffle(LESSONS.filter(L => L.w === w).flatMap(L => L.cards || []));
+  const vc = cards.filter(c => !/…/.test(c.en));
+  const W = c => c.en.replace(/^to /, '').trim();
+  vc.slice(0, 3).forEach(c => {
+    const word = W(c), re = new RegExp('\\b' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\w*', 'i');
+    const ex = (c.ex || []).find(x => re.test(x));
+    const q = ex ? ex.replace(re, '___') + `  (${c.it})` : `How do you say "${c.it}" in English?`;
+    const o = shuffle([word, ...shuffle(vc.filter(x => x !== c)).slice(0, 2).map(W)]);
+    qs.push({ r: 'vocab', kind: 'Vocabulary', q, o, a: o.indexOf(word), expl: `${c.en} = ${c.it}. ${(c.ex || [])[0] || ''}` });
+  });
+  const sents = shuffle(LESSONS.filter(L => L.w === w).flatMap(L => (L.cards || []).flatMap(c => c.ex || [])));
+  for (let k = 0; k < 2; k++) { const s = sents[k], o = shuffle([s, sents[k + 2], sents[k + 4]]); qs.push({ r: 'listening', kind: 'Listening', q: 'Which sentence do you hear?', listen: s, o, a: o.indexOf(s), expl: s }); }
+  qs.push({ r: 'speaking', kind: 'Speaking', speak: sents[6], q: 'Say this sentence aloud:', expl: sents[6] });
+  return qs;
+}
+function blockWeekly() {
+  const L = SESSION.L, w = L.w, body = shell('Quiz settimanale ' + w, '10 domande · risposte alla fine');
+  const qs = buildWeekly(w), ans = [];
+  let i = 0;
+  body.innerHTML = `<div class="card"><div class="tag">Weekly quiz</div><h2>10 domande sulla settimana ${w}</h2><p>4 di grammatica, 3 di vocabolario, 2 di ascolto e 1 di parlato. Non vedrai se hai risposto bene fino alla fine.</p></div><button class="btn block" type="button" id="go">Inizia</button>`;
+  $('#go').onclick = () => next();
+  const next = () => {
+    if (i >= qs.length) return reveal();
+    const q = qs[i], head = `<p class="small muted">${q.kind} · ${i + 1} / ${qs.length}</p>`;
+    if (q.speak) {
+      body.innerHTML = `${head}<p class="q">${esc(q.q)}</p><div class="card"><div class="row">${sayBtn(q.speak)}<p class="grow q">${esc(q.speak)}</p></div></div>${micArea('mic')}
+        <input class="txt" id="ans" placeholder="${SR ? 'Quello che hai detto compare qui' : 'Microfono non disponibile: ascolta e scrivi la frase'}"><button class="btn block" type="button" id="nx">Avanti</button>`;
+      $('#mic').onclick = () => captureInto($('#mic'), $('#ans'));
+      $('#nx').onclick = () => {
+        const v = norm($('#ans').value), t = norm(q.speak).split(' '), got = v.split(' ');
+        const hit = t.filter(x => got.includes(x)).length / t.length;
+        ans.push({ good: hit >= 0.75, you: $('#ans').value.trim() || '—' }); i++; next();
+      };
+      return;
+    }
+    questionUI(body, q, (good, you) => { ans.push({ good, you }); setTimeout(() => { i++; next(); }, 250); }, { head, silent: true });
+  };
+  let R = null;
+  const reveal = () => {
+    if (R) return showResult();
+    const score = ans.filter(a => a.good).length;
+    qs.forEach((q, k) => { ruleStat(q.r, ans[k].good); SESSION.stats[ans[k].good ? 'ok' : 'ko']++; if (!ans[k].good) logError(q.r, ans[k].you, q.o ? filled(q, q.o[q.a]) : q.speak, 'weekly quiz'); });
+    const errs = (S('ec-errors') || []).filter(e => e.w === w && e.r !== 'comprehension');
+    const cnt = {}; errs.forEach(e => cnt[e.r] = (cnt[e.r] || 0) + (e.r === 'translation' ? 1 / 3 : 1));
+    Object.keys(cnt).forEach(k => cnt[k] = Math.max(1, Math.round(cnt[k])));
+    const weak = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).slice(0, 3);
+    const quiz = S('ec-quiz') || {}; quiz['w' + w] = { score, at: today(), weak }; S('ec-quiz', quiz);
+    S('ec-weak', weak.filter(r => RULES[r]));
+    const p = profile(); if (p) { p.adj = (p.adj || 1) * (score >= 8 ? 0.97 : score < 6 ? 1.05 : 1); S('ec-profile', p); }
+    markBlock(L, 'wq'); const d = S('ec-days') || {}; d[today()] = L.id; S('ec-days', d);
+    R = { score, errs, cnt, weak };
+    showResult();
+  };
+  const showResult = () => {
+    const { score, errs, cnt, weak } = R;
+    const body = shell('Quiz settimanale ' + w, 'Risultati');
+    body.innerHTML = `<div class="card"><div class="tag">Result</div><div class="big">${score}/10</div><p>${score >= 8 ? 'Ottima settimana: la stima dei tempi si accorcia un po\'.' : score < 6 ? 'Settimana da consolidare: i punti deboli tornano negli esercizi della prossima.' : 'Buon risultato.'}</p></div>
+      <h2>Le risposte</h2><div class="list">${qs.map((q, k) => `<div class="res ${ans[k].good ? 'ok' : 'ko'}"><small class="muted">${k + 1}. ${q.kind}${RULES[q.r] ? ' · ' + esc(RULES[q.r].t) : ''}</small>
+        <span>${esc(q.speak ? 'Say: ' + q.speak : q.q)}</span><span class="small">Tu: ${esc(ans[k].you)}</span>${q.o ? `<b>✓ ${esc(q.o[q.a])}</b>` : ''}
+        ${!ans[k].good && RULES[q.r] ? `<span class="small">${esc(RULES[q.r].ex)}</span>` : q.expl && !ans[k].good ? `<span class="small">${esc(q.expl)}</span>` : ''}</div>`).join('')}</div>
+      <h2>I tuoi punti deboli</h2>${weak.length ? weak.map(r => {
+        const ex = errs.filter(e => e.r === r && e.you).slice(-2);
+        return `<div class="card"><div class="row"><h3 class="grow">${esc(RULE_NAME(r))}</h3><span class="chip">${cnt[r]} errori</span></div>
+          ${RULES[r] ? `<p class="small">${esc(RULES[r].ex)}</p>` : ''}
+          ${ex.length ? `<div class="mist">${ex.map(e => `<div><s>${esc(e.you)}</s><b>✓ ${esc(e.ok)}</b></div>`).join('')}</div>` : ''}
+          ${RULES[r] ? `<button class="btn soft sm" type="button" data-drill="${r}">Esercizio di recupero (4 domande)</button>` : ''}</div>`;
+      }).join('') : '<div class="fb ok">Nessun punto debole questa settimana.</div>'}
+      <button class="btn block" type="button" id="nx">Fine</button>`;
+    body.querySelectorAll('[data-drill]').forEach(b => b.onclick = () => drill(b.dataset.drill, reveal));
+    $('#nx').onclick = () => sessionEnd();
+  };
+}
+function drill(r, back) {
+  const body = shell('Recupero', RULES[r].t);
+  body.innerHTML = ruleCardHTML(r) + '<div id="dq"></div>';
+  runItems($('#dq'), shuffle(RULES[r].pool).slice(0, 4).map(x => Object.assign({ r }, x)), 'Recupero', ok => {
+    $('#dq').innerHTML = `<div class="fb ${ok >= 3 ? 'ok' : 'ko'}">${ok}/4</div><button class="btn block" type="button" id="bk">Torna</button>`;
+    $('#bk').onclick = back || closeSession;
+  });
+}
+
+/* ---------- Primo avvio: test di livello e obiettivo ---------- */
+function onboarding() {
+  const v = $('#view');
+  v.innerHTML = `<div class="stack"><div class="card"><div class="tag">Benvenuto</div><h1>Il tuo corso di inglese da 30 minuti al giorno</h1>
+    <p>Grammatica, ascolto e conversazione, con flashcard e quiz. Prima stabiliamo il tuo livello e il tuo obiettivo: l'app calcola quanto tempo ti serve.</p></div>
+    <button class="btn block" type="button" id="t1">Fai il test di livello (circa 8 minuti)</button>
+    <button class="btn block ghost" type="button" id="t2">Conosco già il mio livello</button></div>`;
+  $('#t1').onclick = placement;
+  $('#t2').onclick = () => {
+    v.innerHTML = `<div class="card"><h2>Qual è il tuo livello?</h2><div class="seg" id="lv">${['A1', 'A2', 'B1', 'B2'].map(l => `<button type="button" data-l="${l}" aria-pressed="${l === 'A2'}">${l}</button>`).join('')}</div>
+      <button class="btn block" type="button" id="ok">Avanti</button></div>`;
+    let lv = 'A2';
+    v.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { lv = b.dataset.l; v.querySelectorAll('[data-l]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+    $('#ok').onclick = () => { const nx = LEVELS[LEVELS.indexOf(lv) + 1]; goalSetup({ level: lv, startH: LEVEL_H[lv] + 0.15 * (LEVEL_H[nx] - LEVEL_H[lv]), test: null }); };
+  };
+}
+function placement() {
+  const v = $('#view'); let i = 0; const res = [];
+  const items = PLACEMENT.map(x => Object.assign({}, x, { shuf: shuffle(x.o.map((_, k) => k)) }));
+  const next = () => {
+    if (i >= items.length) return done();
+    const it = items[i];
+    v.innerHTML = `<div class="card"><div class="progress"><i style="width:${i / items.length * 100}%"></i></div><div id="pq" class="stack"></div><button class="btn ghost sm" type="button" id="dk">Non lo so</button></div>`;
+    questionUI($('#pq'), it, good => { res.push({ l: it.l, good }); i++; next(); }, { head: `<p class="small muted">Domanda ${i + 1} / ${items.length}</p>`, silent: true });
+    $('#dk').onclick = () => { res.push({ l: it.l, good: false }); i++; next(); };
+  };
+  const done = () => {
+    const ratio = l => { const r = res.filter(x => x.l === l); return r.filter(x => x.good).length / r.length; };
+    let level = 'A0';
+    for (const l of ['A1', 'A2', 'B1', 'B2']) { if (ratio(l) >= 0.6) level = l; else break; }
+    const nx = LEVELS[LEVELS.indexOf(level) + 1], nxR = ['A1', 'A2', 'B1', 'B2'].includes(nx) ? ratio(nx) : 0;
+    const startH = LEVEL_H[level] + Math.min(0.6, nxR * 0.6) * (LEVEL_H[nx] - LEVEL_H[level]);
+    goalSetup({ level, startH, test: res.filter(x => x.good).length + '/' + res.length });
+  };
+  next();
+}
+function goalSetup(base, edit) {
+  const v = edit ? $('#view') : $('#view');
+  const p = Object.assign({ goal: null, min: 30, days: 7 }, profile() || {}, base);
+  const goals = LEVELS.filter((l, i) => i > LEVELS.indexOf(p.level)).slice(0, 3);
+  if (!goals.includes(p.goal)) p.goal = goals[0];
+  const draw = () => {
+    const need = LEVEL_H[p.goal] - p.startH, wk = p.min * p.days / 60, weeks = need / wk;
+    v.innerHTML = `<div class="stack"><div class="card"><div class="tag">${base.test ? 'Risultato del test: ' + base.test : 'Livello di partenza'}</div>
+      <h2>Livello ${lvName(p.level)}${p.startH > LEVEL_H[p.level] + 5 ? ' (verso ' + LEVELS[LEVELS.indexOf(p.level) + 1] + ')' : ''}</h2></div>
+      <div class="card"><label class="f">Obiettivo<div class="seg" data-k="goal">${goals.map(g => `<button type="button" data-v="${g}" aria-pressed="${g === p.goal}">${g}</button>`).join('')}</div></label>
+      <label class="f">Minuti al giorno<div class="seg" data-k="min">${[15, 20, 30, 45].map(g => `<button type="button" data-v="${g}" aria-pressed="${g === p.min}">${g}</button>`).join('')}</div></label>
+      <label class="f">Giorni a settimana<div class="seg" data-k="days">${[5, 6, 7].map(g => `<button type="button" data-v="${g}" aria-pressed="${g === p.days}">${g}</button>`).join('')}</div></label></div>
+      <div class="card"><div class="tag">Stima</div><div class="big">${weeks < 8 ? Math.round(weeks) + ' settimane' : Math.round(weeks / 4.35) + ' mesi'}</div>
+      <p>Per arrivare a <b>${p.goal}</b> servono circa <b>${Math.round(need)} ore</b> di studio. Con ${p.min} minuti per ${p.days} giorni (${wk.toFixed(1).replace('.', ',')} ore a settimana) arrivi verso <b>${fmtDate(addDays(today(), Math.ceil(weeks * 7)))}</b>.</p>
+      <p class="small muted">Base: ore di apprendimento guidato di Cambridge English. La stima si aggiorna con il tuo ritmo reale e con i quiz settimanali.</p></div>
+      <button class="btn block" type="button" id="ok">${edit ? 'Salva' : 'Inizia il corso'}</button></div>`;
+    v.querySelectorAll('.seg').forEach(sg => sg.querySelectorAll('button').forEach(b => b.onclick = () => { const k = sg.dataset.k; p[k] = k === 'goal' ? b.dataset.v : +b.dataset.v; draw(); }));
+    $('#ok').onclick = () => { if (!p.start) p.start = today(); p.adj = p.adj || 1; S('ec-profile', p); TAB = 'home'; render(); toast('Percorso salvato.'); };
+  };
+  draw();
+}
+
+/* ---------- Schermate principali ---------- */
+let TAB = 'home';
+function render() {
+  const p = profile();
+  $('#tabs').classList.toggle('hidden', !p);
+  if (!p) { onboarding(); return; }
+  document.querySelectorAll('#tabs [data-tab]').forEach(b => b.setAttribute('aria-current', b.dataset.tab === TAB ? 'page' : 'false'));
+  ({ home: viewHome, cards: viewCards, path: viewPath, set: viewSettings })[TAB]();
+  window.scrollTo(0, 0);
+}
+function progressCard() {
+  const e = estimate(), p = profile();
+  return `<div class="card"><div class="row"><div class="grow"><div class="tag">Percorso ${lvName(p.level)} → ${p.goal}</div><div class="big">${e.pct.toFixed(1).replace('.', ',')}%</div></div>
+    <span class="chip">🔥 ${streak()} ${streak() === 1 ? 'giorno' : 'giorni'}</span></div>
+    <div class="progress" role="progressbar" aria-valuenow="${Math.round(e.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(1, e.pct)}%"></i></div>
+    <p class="small muted">${(e.doneH).toFixed(1).replace('.', ',')} di ${Math.round(e.need)} ore · arrivo stimato <b>${fmtDate(e.eta)}</b>${e.usingReal ? ' (al tuo ritmo reale)' : ''}</p></div>`;
+}
+function viewHome() {
+  const L = currentLesson(), todayMin = Math.round(((S('ec-time') || {})[today()] || 0) / 60), p = profile(), due = dueCards().length;
+  const doneToday = (S('ec-days') || {})[today()];
+  let lessonHTML;
+  if (!L) lessonHTML = `<div class="card"><div class="tag">Settimana 1 completata</div><h2>Le settimane 2–4 arrivano nel prossimo aggiornamento</h2><p class="muted">Intanto ripassa le flashcard e i punti deboli.</p></div>`;
+  else if (L.weekly) lessonHTML = `<div class="card"><div class="tag">Settimana ${L.w} · quiz</div><h2>${esc(L.title)}</h2><p class="muted">10 domande su quello che hai studiato. Risposte e punti deboli alla fine.</p><button class="btn block" type="button" id="start">Inizia il quiz</button></div>`;
+  else {
+    const m = doneMap()[L.id] || {}, bl = lessonBlocks(L), started = bl.some(b => m[b]);
+    lessonHTML = `<div class="card"><div class="tag">Settimana ${L.w} · giorno ${L.d}</div><h2>${esc(L.title)}</h2><p class="muted">${esc(L.goal)}</p>
+      <div class="blocks">${bl.map(b => `<button class="blk${m[b] ? ' done' : ''}" type="button" data-b="${b}"><span class="dot">${m[b] ? '✓' : ''}</span><span>${BLOCKS[b][0]}</span><span class="min">${BLOCKS[b][1]} min</span></button>`).join('')}</div>
+      <button class="btn block" type="button" id="start">${started ? 'Continua la sessione' : 'Inizia la sessione'}</button></div>`;
+  }
+  $('#view').innerHTML = `<div class="top"><div class="brand">English<span>Coach</span></div><span class="chip">Oggi ${todayMin}/${p.min} min</span></div>
+    <div class="stack">${doneToday && L && !L.weekly ? '<div class="fb ok">Sessione di oggi fatta. Puoi continuare con la prossima o ripassare.</div>' : ''}
+    ${progressCard()}${lessonHTML}
+    ${due ? `<div class="card"><div class="row"><div class="grow"><h3>Flashcard da ripassare</h3><p class="small muted">${due} in scadenza oggi</p></div><button class="btn soft sm" type="button" id="rev">Ripassa</button></div></div>` : ''}
+    <div class="card"><div class="row"><div class="grow"><h3>Conversazione in auto</h3><p class="small muted">Modalità solo voce per Android Auto: arriva in un prossimo passo.</p></div><span class="chip">In arrivo</span></div></div></div>`;
+  const st = $('#start'); if (st) st.onclick = () => openSession(L);
+  document.querySelectorAll('[data-b]').forEach(b => b.onclick = () => openSession(L, b.dataset.b));
+  const rv = $('#rev'); if (rv) rv.onclick = reviewOnly;
+}
+function reviewOnly() {
+  SESSION = { L: { id: 'review', w: 0, title: 'Ripasso' }, sec: 0, blocks: ['fc'], i: 0, stats: { ok: 0, ko: 0 } };
+  $('#session').classList.add('on'); document.body.style.overflow = 'hidden';
+  const body = shell('Ripasso flashcard', 'Carte in scadenza');
+  let queue = dueCards().map(k => k.id).slice(0, 40), again = {};
+  const show = () => {
+    if (!queue.length) { body.innerHTML = '<div class="fb ok">Ripasso finito.</div><button class="btn block" type="button" id="nx">Chiudi</button>'; $('#nx').onclick = closeSession; return; }
+    const k = cardsAll()[queue[0]];
+    body.innerHTML = `<p class="small muted">${queue.length} rimaste</p><div class="card flash"><div class="w">${esc(k.en)}</div>${sayBtn(k.en)}<div id="back" class="hidden stack" style="justify-items:center"><div class="q">${esc(k.it)}</div><div class="eg" style="text-align:left">${(k.ex || []).map(x => `<div>${sayBtn(x)}<span>${esc(x)}</span></div>`).join('')}</div></div></div>
+      <button class="btn block" type="button" id="flip">Mostra</button><div class="grade hidden" id="gr">${['Di nuovo', 'Difficile', 'Bene', 'Facile'].map((g, i) => `<button type="button" data-g="${i}">${g}<small>${nextIv(k, i)}</small></button>`).join('')}</div>`;
+    $('#flip').onclick = () => { $('#back').classList.remove('hidden'); $('#flip').classList.add('hidden'); $('#gr').classList.remove('hidden'); };
+    body.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { const g = +b.dataset.g, id = queue.shift(); gradeCard(id, g); if (g === 0 && !again[id]) { again[id] = 1; queue.push(id); } show(); });
+  };
+  show();
+}
+function viewCards() {
+  const c = Object.values(cardsAll()), t = today();
+  const due = c.filter(k => k.due <= t).length, learned = c.filter(k => k.iv >= 7).length;
+  $('#view').innerHTML = `<div class="top"><h1>Flashcard</h1></div><div class="stack">
+    <div class="kv"><div><b>${c.length}</b><small>carte</small></div><div><b>${due}</b><small>da ripassare</small></div><div><b>${learned}</b><small>memorizzate</small></div></div>
+    ${due ? '<button class="btn block" type="button" id="rev">Ripassa ora</button>' : ''}
+    <input class="txt" id="find" placeholder="Cerca una parola">
+    <div class="card"><div class="list" id="clist"></div></div>
+    <details class="card"><summary>Aggiungi una carta</summary><div class="stack" style="margin-top:10px"><input class="txt" id="nen" placeholder="Inglese"><input class="txt" id="nit" placeholder="Italiano"><input class="txt" id="nex" placeholder="Frase di esempio (facoltativa)"><button class="btn" type="button" id="nadd">Aggiungi</button></div></details></div>`;
+  const draw = q => {
+    const l = c.filter(k => !q || norm(k.en + ' ' + k.it).includes(norm(q))).sort((a, b) => a.due < b.due ? -1 : 1);
+    $('#clist').innerHTML = l.length ? l.map(k => `<div class="row" style="border-bottom:1px solid var(--line);padding-bottom:8px">${sayBtn(k.en)}<div class="grow"><b>${esc(k.en)}</b><br><span class="small muted">${esc(k.it)}</span></div><span class="small muted">${k.due <= t ? 'oggi' : fmtDate(k.due).replace(/ \d{4}$/, '')}</span></div>`).join('')
+      : '<p class="muted">Le carte arrivano con le lezioni: 6 nuove ogni giorno.</p>';
+  };
+  draw('');
+  $('#find').oninput = e => draw(e.target.value);
+  const rv = $('#rev'); if (rv) rv.onclick = reviewOnly;
+  $('#nadd').onclick = () => { const en = $('#nen').value.trim(), it = $('#nit').value.trim(); if (!en || !it) return toast('Scrivi inglese e italiano.'); addCustomCard(en, it, $('#nex').value.trim()); toast('Carta aggiunta.'); viewCards(); };
+}
+const PLAN_NEXT = [
+  { w: 2, t: 'Il passato: raccontare cosa è successo', l: ['Past simple regolare', 'Verbi irregolari', 'Domande con did', 'Past continuous', 'Sequenze e connettivi', 'Ripasso'] },
+  { w: 3, t: 'Present perfect: esperienze e risultati', l: ['ever / never', 'Present perfect vs past simple', 'for / since', 'just / already / yet', 'Present perfect continuous', 'Ripasso e colloquio'] },
+  { w: 4, t: 'Il futuro: piani, appuntamenti, previsioni', l: ['going to', 'Present continuous per appuntamenti', 'will', 'will vs going to', 'Primo condizionale', 'Ripasso del mese'] }
+];
+function viewPath() {
+  const e = estimate(), p = profile(), cur = currentLesson(), st = S('ec-stats') || {}, quiz = S('ec-quiz') || {};
+  const wk = Math.round(secOnDays(7) / 60);
+  const rules = Object.keys(st).filter(r => st[r].ok + st[r].ko >= 3).map(r => ({ r, n: st[r].ok + st[r].ko, pct: Math.round(st[r].ok / (st[r].ok + st[r].ko) * 100) })).sort((a, b) => a.pct - b.pct);
+  $('#view').innerHTML = `<div class="top"><h1>Percorso</h1></div><div class="stack">${progressCard()}
+    <div class="kv"><div><b>${lvName(e.nowLevel)}</b><small>livello stimato</small></div><div><b>${wk}</b><small>min ultimi 7 giorni</small></div><div><b>${Math.round(e.real * 60)}</b><small>min/settimana reali</small></div></div>
+    <div class="card"><h3>Come si calcola</h3><p class="small">Servono circa ${Math.round(e.need)} ore per passare dal tuo punto di partenza a ${p.goal}. Hai pianificato ${p.min} minuti per ${p.days} giorni (${Math.round(e.planned * 60)} min a settimana). ${e.usingReal ? 'Negli ultimi 14 giorni hai studiato in media ' + Math.round(e.real * 60) + ' minuti a settimana: la data usa questo ritmo.' : 'Dopo 4 giorni di studio la data usa il tuo ritmo reale.'} I quiz settimanali correggono la stima: sopra 8/10 si accorcia, sotto 6/10 si allunga.</p></div>
+    <div class="card"><h3>Settimana 1 — Il presente: lavoro e routine</h3><div class="week">${LESSONS.filter(L => L.w === 1).map(L => `<div class="lesson-row ${lessonComplete(L) ? 'done' : cur === L ? 'cur' : ''}"><span class="n">${lessonComplete(L) ? '✓' : L.d}</span><span class="grow">${esc(L.title)}<br><span class="small muted">${L.weekly ? (quiz['w1'] ? 'Risultato ' + quiz['w1'].score + '/10' : 'Domenica') : esc(L.goal)}</span></span></div>`).join('')}</div></div>
+    ${PLAN_NEXT.map(x => `<div class="card"><div class="row"><h3 class="grow">Settimana ${x.w} — ${esc(x.t)}</h3><span class="chip">In arrivo</span></div><p class="small muted">${x.l.join(' · ')}</p></div>`).join('')}
+    <div class="card"><h3>Precisione per argomento</h3>${rules.length ? rules.map(x => `<div class="bar-row"><span>${esc(RULE_NAME(x.r))}</span><div class="progress"><i style="width:${x.pct}%;background:${x.pct < 70 ? 'var(--bad)' : 'var(--ok)'}"></i></div><b>${x.pct}%</b></div>`).join('') : '<p class="small muted">Compare dopo i primi esercizi.</p>'}</div>
+    <button class="btn block ghost" type="button" id="edit">Cambia obiettivo o ritmo</button></div>`;
+  $('#edit').onclick = () => goalSetup({ level: p.level, startH: p.startH, test: null }, true);
+}
+function viewSettings() {
+  const c = aiCfg(), vc = S('ec-voice') || {}, last = S('ec-lastBackup');
+  $('#view').innerHTML = `<div class="top"><h1>Profilo</h1></div><div class="stack">
+    <div class="card"><h3>Tutor AI (facoltativo, gratis)</h3><p class="small">Serve per la conversazione vera nel blocco Parlato e per la correzione completa delle traduzioni. Senza chiave l'app funziona in modalità guidata.</p>
+      <p class="small muted">Crea una chiave gratuita su <b>aistudio.google.com</b> → Get API key, poi incollala qui. Resta solo su questo telefono. Con il piano gratuito Google può usare i testi per migliorare i suoi servizi: non scrivere dati personali.</p>
+      <input class="txt" id="key" placeholder="Chiave API Gemini" value="${esc(c.key || '')}" autocomplete="off">
+      <div class="row"><select class="txt grow" id="model">${c.model ? `<option>${esc(c.model)}</option>` : '<option value="">Prima carica i modelli</option>'}</select><button class="btn soft sm" type="button" id="lm">Carica modelli</button></div>
+      <div class="row"><button class="btn sm" type="button" id="sk">Salva e prova</button><span class="small muted" id="aist">${aiOn() ? 'Configurata' : 'Non configurata'}</span></div></div>
+    <div class="card"><h3>Voce</h3><select class="txt" id="voice">${VOICES.map(v => `<option value="${esc(v.name)}"${vc.voice === v.name ? ' selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('') || '<option>Voce predefinita</option>'}</select>
+      <label class="f">Velocità<input type="range" id="rate" min="0.6" max="1.2" step="0.05" value="${vc.rate || 0.9}"></label><button class="btn soft sm" type="button" id="tv">Prova voce</button></div>
+    <div class="card"><h3>Backup dei dati</h3><p class="small muted">${last ? 'Ultimo backup: ' + fmtDate(iso(new Date(last))) + '.' : 'Nessun backup ancora.'} I dati restano solo su questo telefono: se cancelli i dati dei siti in Chrome si perdono.</p>
+      <div class="row"><button class="btn sm" type="button" id="bk">Salva backup</button><label class="btn soft sm">Ripristina<input type="file" id="rs" accept=".json,application/json" hidden></label></div></div>
+    <div class="card"><h3>Livello e obiettivo</h3><div class="row"><button class="btn soft sm" type="button" id="goal">Cambia obiettivo o ritmo</button><button class="btn ghost sm" type="button" id="retest">Rifai il test</button></div></div></div>`;
+  $('#lm').onclick = async () => {
+    const k = $('#key').value.trim(); if (!k) return toast('Incolla prima la chiave.');
+    $('#aist').textContent = 'Carico…';
+    try { const ms = await aiModels(k); if (!ms.length) throw new Error('nessun modello'); $('#model').innerHTML = ms.map(m => `<option>${esc(m)}</option>`).join(''); $('#aist').textContent = ms.length + ' modelli: il primo è il consigliato.'; }
+    catch (e) { $('#aist').textContent = 'Errore: ' + e.message; }
+  };
+  $('#sk').onclick = async () => {
+    S('ec-ai', { key: $('#key').value.trim(), model: $('#model').value }); $('#aist').textContent = 'Provo…';
+    try { const r = await ai('Reply with exactly: OK', [{ role: 'user', text: 'Test' }]); $('#aist').textContent = 'Funziona (' + r.slice(0, 20) + ')'; }
+    catch (e) { $('#aist').textContent = 'Errore: ' + e.message; }
+  };
+  const saveV = () => S('ec-voice', { voice: $('#voice').value, rate: +$('#rate').value });
+  $('#voice').onchange = saveV; $('#rate').onchange = saveV;
+  $('#tv').onclick = () => { saveV(); speak('Hi Andrea! This is your English coach. Are you ready for today\'s lesson?'); };
+  $('#bk').onclick = () => {
+    const data = { app: 'english-coach', v: 1, created: new Date().toISOString(), data: {} };
+    Object.keys(localStorage).filter(k => k.startsWith('ec-') && k !== 'ec-ai').forEach(k => data.data[k] = S(k));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    a.download = 'english-coach-backup_' + today() + '.json'; document.body.appendChild(a); a.click(); a.remove();
+    S('ec-lastBackup', Date.now()); toast('Backup salvato nei Download.'); viewSettings();
+  };
+  $('#rs').onchange = e => {
+    const f = e.target.files[0]; if (!f) return; const rd = new FileReader();
+    rd.onload = () => { try { const j = JSON.parse(rd.result); if (j.app !== 'english-coach') throw 0; Object.entries(j.data).forEach(([k, v]) => S(k, v)); toast('Dati ripristinati.'); setTimeout(() => location.reload(), 900); } catch (x) { toast('Questo file non è un backup di English Coach.'); } };
+    rd.readAsText(f);
+  };
+  $('#goal').onclick = () => { const p = profile(); goalSetup({ level: p.level, startH: p.startH, test: null }, true); };
+  $('#retest').onclick = () => { placement(); };
+}
+
+/* ---------- Avvio ---------- */
+$('#tabs').innerHTML = `<div class="in">${[['home', 'Oggi'], ['cards', 'Flashcard'], ['path', 'Percorso'], ['set', 'Profilo']].map(([k, n]) => `<button type="button" data-tab="${k}">${ICON[k]}<span>${n}</span></button>`).join('')}</div>`;
+document.querySelectorAll('#tabs [data-tab]').forEach(b => b.onclick = () => { TAB = b.dataset.tab; render(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushTime(); });
+render();
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
+
+</script>
+</body>
+</html>
