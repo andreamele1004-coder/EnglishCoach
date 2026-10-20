@@ -665,8 +665,8 @@ async function ai(system, turns, json) {
     contents: turns.map(t => ({ role: t.role === 'ai' ? 'model' : 'user', parts: [{ text: t.text }] })),
     generationConfig: Object.assign({ temperature: 0.6 }, json ? { responseMimeType: 'application/json' } : {})
   };
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.model)}:generateContent`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': c.key }, body: JSON.stringify(body)
+  const r = await net(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.model)}:generateContent?key=${encodeURIComponent(c.key)}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
@@ -674,8 +674,13 @@ async function ai(system, turns, json) {
   if (!json) return txt;
   try { return JSON.parse(txt.replace(/^```(json)?|```$/g, '')); } catch (e) { throw new Error('Risposta AI non leggibile'); }
 }
+async function net(url, opt) {
+  if (!navigator.onLine) throw new Error('Sei offline: collegati a internet e riprova.');
+  try { return await fetch(url, Object.assign({ cache: 'no-store' }, opt || {})); }
+  catch (e) { throw new Error('Connessione a Google non riuscita. Prova con i dati mobili invece del Wi-Fi (le reti aziendali spesso la bloccano), disattiva VPN o blocco pubblicità, e controlla di aver aperto l\'app dal link github.io.'); }
+}
 async function aiModels(key) {
-  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': key } });
+  const r = await net('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(key.trim()));
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
   const ver = n => (n.match(/(\d+(?:\.\d+)?)/) || [0, 0])[1] * 1;
@@ -1350,13 +1355,13 @@ function viewSettings() {
       <div class="row"><button class="btn sm" type="button" id="bk">Salva backup</button><label class="btn soft sm">Ripristina<input type="file" id="rs" accept=".json,application/json" hidden></label></div></div>
     <div class="card"><h3>Livello e obiettivo</h3><div class="row"><button class="btn soft sm" type="button" id="goal">Cambia obiettivo o ritmo</button><button class="btn ghost sm" type="button" id="retest">Rifai il test</button></div></div></div>`;
   $('#lm').onclick = async () => {
-    const k = $('#key').value.trim(); if (!k) return toast('Incolla prima la chiave.');
+    const k = $('#key').value.replace(/\s+/g, ''); if (!k) return toast('Incolla prima la chiave.');
     $('#aist').textContent = 'Carico…';
     try { const ms = await aiModels(k); if (!ms.length) throw new Error('nessun modello'); $('#model').innerHTML = ms.map(m => `<option>${esc(m)}</option>`).join(''); $('#aist').textContent = ms.length + ' modelli: il primo è il consigliato.'; }
     catch (e) { $('#aist').textContent = 'Errore: ' + e.message; }
   };
   $('#sk').onclick = async () => {
-    S('ec-ai', { key: $('#key').value.trim(), model: $('#model').value }); $('#aist').textContent = 'Provo…';
+    S('ec-ai', { key: $('#key').value.replace(/\s+/g, ''), model: $('#model').value }); $('#aist').textContent = 'Provo…';
     try { const r = await ai('Reply with exactly: OK', [{ role: 'user', text: 'Test' }]); $('#aist').textContent = 'Funziona (' + r.slice(0, 20) + ')'; }
     catch (e) { $('#aist').textContent = 'Errore: ' + e.message; }
   };
