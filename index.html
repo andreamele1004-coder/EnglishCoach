@@ -721,7 +721,7 @@ function markBlock(L, b) {
   const m = doneMap(); m[L.id] = m[L.id] || {}; m[L.id][b] = today(); S('ec-done', m);
   if (lessonComplete(L)) { const d = S('ec-days') || {}; d[today()] = L.id; S('ec-days', d); }
 }
-function logError(r, you, ok, src) { const e = S('ec-errors') || []; e.push({ d: today(), r, you, ok, src, w: SESSION ? SESSION.L.w : 0 }); while (e.length > 600) e.shift(); S('ec-errors', e); }
+function logError(r, you, ok, src, wk) { const e = S('ec-errors') || []; e.push({ d: today(), r, you, ok, src, w: wk ?? (SESSION ? SESSION.L.w : (currentLesson() || {}).w || 0) }); while (e.length > 600) e.shift(); S('ec-errors', e); }
 function ruleStat(r, good) { const s = S('ec-stats') || {}; s[r] = s[r] || { ok: 0, ko: 0 }; s[r][good ? 'ok' : 'ko']++; S('ec-stats', s); }
 
 /* ---------- Tempo di studio: conta solo mentre la sessione è aperta e la usi ---------- */
@@ -1288,7 +1288,8 @@ function viewHome() {
     <div class="stack">${doneToday && L && !L.weekly ? '<div class="fb ok">Sessione di oggi fatta. Puoi continuare con la prossima o ripassare.</div>' : ''}
     ${progressCard()}${lessonHTML}
     ${due ? `<div class="card"><div class="row"><div class="grow"><h3>Flashcard da ripassare</h3><p class="small muted">${due} in scadenza oggi</p></div><button class="btn soft sm" type="button" id="rev">Ripassa</button></div></div>` : ''}
-    <div class="card"><div class="row"><div class="grow"><h3>Conversazione in auto</h3><p class="small muted">Modalità solo voce per Android Auto: arriva in un prossimo passo.</p></div><span class="chip">In arrivo</span></div></div></div>`;
+    <div class="card"><div class="row"><div class="grow"><h3>Conversazione in auto</h3><p class="small muted">Lezione di oggi da fare a voce con Gemini su Android Auto.</p></div><button class="btn soft sm" type="button" id="car">Prepara</button></div></div></div>`;
+  $('#car').onclick = viewCar;
   const st = $('#start'); if (st) st.onclick = () => openSession(L);
   document.querySelectorAll('[data-b]').forEach(b => b.onclick = () => openSession(L, b.dataset.b));
   const rv = $('#rev'); if (rv) rv.onclick = reviewOnly;
@@ -1405,6 +1406,64 @@ function viewSettings() {
   };
   $('#goal').onclick = () => { const p = profile(); goalSetup({ level: p.level, startH: p.startH, test: null }, true); };
   $('#retest').onclick = () => { placement(); };
+}
+
+
+/* ---------- Conversazione in auto (Gemini Live su Android Auto) ---------- */
+function carLesson() { return currentLesson() && !currentLesson().weekly ? currentLesson() : [...LESSONS].reverse().find(L => !L.weekly && lessonComplete(L)) || LESSONS[0]; }
+function carInstruction() {
+  const lvl = lvName(estimate()?.nowLevel || profile().level);
+  return `Quando dico "English lesson", diventa il mio tutor di inglese mentre guido. Sono italiano, livello ${lvl}, lavoro nella logistica e gioco a calcio. Parla solo in inglese semplice e lento, con frasi brevi e una sola domanda alla volta, senza elenchi. Usa il tema e la grammatica che ti dico. Durante la conversazione non interrompermi per correggermi: ripeti in modo corretto le mie frasi sbagliate e vai avanti. Quando dico "Give me my feedback", dimmi i miei errori principali (massimo 5) così: la mia frase, la frase corretta, la regola in inglese in una riga. Sto guidando: non chiedermi mai di leggere o guardare lo schermo.`;
+}
+function carPhrase(L) { return `English lesson. Topic: ${L.speak.topic.replace(/\.$/, '')}. Grammar: ${RULES[L.speak.target].t.split(':')[0]}.`; }
+async function copyText(t, ok) { try { await navigator.clipboard.writeText(t); toast(ok || 'Copiato.'); } catch (e) { toast('Copia non riuscita: tieni premuto sul testo e copia.'); } }
+function viewCar() {
+  const L = carLesson(), phrase = carPhrase(L), log = S('ec-car') || [];
+  const words = (L.cards || []).map(c => c.en).join(', ');
+  $('#view').innerHTML = `<div class="top"><button class="btn ghost sm" type="button" id="back">← Oggi</button><span class="chip">Android Auto</span></div><div class="stack">
+    <div class="card"><div class="tag">Una volta sola</div><h2>Insegna a Gemini a fare il tutor</h2>
+      <p class="small">Apri l'app <b>Gemini</b> → tocca la tua foto profilo → <b>Info salvate</b> (o "Contesto personale") → <b>Aggiungi</b>, e incolla questo testo:</p>
+      <div class="res"><span class="small">${esc(carInstruction())}</span></div>
+      <button class="btn soft sm" type="button" id="cpi">Copia l'istruzione</button>
+      <p class="small muted">Aggiornala quando cambi livello. Serve Gemini impostato come assistente del telefono.</p></div>
+    <div class="card"><div class="tag">Ogni giorno · ${esc(L.title)}</div><h2>In auto</h2>
+      <ol class="small" style="margin:0;padding-left:20px;display:grid;gap:6px">
+        <li>Collega il telefono ad Android Auto e di' <b>"Hey Google"</b> (o tieni premuto il tasto voce del volante).</li>
+        <li>Di' <b>"Let's talk Live"</b>.</li>
+        <li>Di' la frase di oggi:</li></ol>
+      <div class="res ok"><div class="row">${sayBtn(phrase)}<b class="grow">${esc(phrase)}</b></div></div>
+      <p class="small">Prova a usare queste parole: <b>${esc(words)}</b>.</p>
+      <ol start="4" class="small" style="margin:0;padding-left:20px;display:grid;gap:6px"><li>Prima di arrivare di' <b>"Give me my feedback"</b>, poi <b>"Stop"</b>.</li></ol>
+      <p class="small muted">Ascolta la frase prima di partire, così te la ricordi. Non guardare lo schermo durante la guida.</p></div>
+    <div class="card"><div class="tag">Dopo la guida</div><h2>Riporta la correzione nell'app</h2>
+      <p class="small">Apri Gemini → cronologia delle chat → la conversazione Live di oggi → copia il feedback e incollalo qui. Gli errori entrano nei punti deboli e le frasi corrette diventano flashcard.</p>
+      <textarea class="txt" id="fbk" placeholder="Incolla qui il feedback di Gemini"></textarea>
+      <label class="f">Minuti di conversazione<div class="seg" id="cmin">${[5, 10, 15, 20, 30].map(m => `<button type="button" data-m="${m}" aria-pressed="${m === 10}">${m}</button>`).join('')}</div></label>
+      <button class="btn block" type="button" id="imp">Salva la sessione in auto</button><div id="impres"></div></div>
+    ${log.length ? `<div class="card"><h3>Sessioni in auto</h3><div class="list">${log.slice(-5).reverse().map(x => `<div class="row small"><span class="grow">${fmtDate(x.d)} · ${esc(x.t)}</span><b>${x.min} min · ${x.err} errori</b></div>`).join('')}</div></div>` : ''}</div>`;
+  let min = 10;
+  $('#back').onclick = () => { TAB = 'home'; render(); };
+  $('#cpi').onclick = () => copyText(carInstruction(), 'Istruzione copiata: incollala in Gemini → Info salvate.');
+  document.querySelectorAll('#cmin [data-m]').forEach(b => b.onclick = () => { min = +b.dataset.m; document.querySelectorAll('#cmin [data-m]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+  $('#imp').onclick = async () => {
+    const txt = $('#fbk').value.trim(), out = $('#impres'); $('#imp').disabled = true;
+    let errs = [];
+    if (txt && aiOn()) {
+      out.innerHTML = '<p class="small muted">Leggo il feedback…</p>';
+      try {
+        const r = await ai('Extract the learner\'s English mistakes from this tutor feedback. Return JSON only: {"errors":[{"you":"learner sentence","correct":"corrected sentence","rule":"short rule name in English"}]}. If there are none, return {"errors":[]}.', [{ role: 'user', text: txt }], true);
+        errs = r.errors || [];
+      } catch (e) { out.innerHTML = `<p class="small">AI non raggiungibile: salvo il testo così com'è.</p>`; }
+    } else if (txt) {
+      txt.split(/\n+/).forEach(l => { const m = l.match(/(.+?)\s*(?:→|->|=>|should be|correct:)\s*(.+)/i); const q = x => x.replace(/^[\s\-*\d.]+/, '').replace(/^["“']+|["”']+$/g, '').trim(); if (m) errs.push({ you: q(m[1]), correct: q(m[2]), rule: 'speaking' }); });
+    }
+    errs.forEach(e => { logError('speaking', e.you, e.correct, 'auto: ' + (e.rule || ''), L.w); addCustomCard(e.correct, 'Correzione in auto' + (e.rule ? ' · ' + e.rule : ''), e.you ? 'Not: ' + e.you : ''); });
+    const t = S('ec-time') || {}; t[today()] = (t[today()] || 0) + min * 60; S('ec-time', t);
+    const lg = S('ec-car') || []; lg.push({ d: today(), t: L.title, min, err: errs.length, txt: txt.slice(0, 2000) }); S('ec-car', lg);
+    out.innerHTML = `<div class="fb ok">Salvato: ${min} minuti aggiunti al percorso${errs.length ? `, ${errs.length} errori nei punti deboli e nelle flashcard` : ''}.</div>`;
+    setTimeout(viewCar, 1800);
+  };
+  window.scrollTo(0, 0);
 }
 
 /* ---------- Avvio ---------- */
