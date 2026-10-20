@@ -676,8 +676,12 @@ async function ai(system, turns, json) {
 }
 async function net(url, opt) {
   if (!navigator.onLine) throw new Error('Sei offline: collegati a internet e riprova.');
-  try { return await fetch(url, Object.assign({ cache: 'no-store' }, opt || {})); }
-  catch (e) { throw new Error('Connessione a Google non riuscita. Prova con i dati mobili invece del Wi-Fi (le reti aziendali spesso la bloccano), disattiva VPN o blocco pubblicità, e controlla di aver aperto l\'app dal link github.io.'); }
+  try { return await fetch(url, opt || {}); }
+  catch (e) {
+    // riserva: richiesta "semplice" senza intestazione JSON (evita il controllo preliminare del browser)
+    if (opt && opt.method === 'POST') { try { return await fetch(url, Object.assign({}, opt, { headers: { 'Content-Type': 'text/plain;charset=UTF-8' } })); } catch (e2) { } }
+    const err = new Error('Connessione a Google non riuscita (' + (e && e.message || e) + '). Vai in Profilo → Diagnosi connessione.'); err.raw = e; throw err;
+  }
 }
 async function aiModels(key) {
   const r = await net('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(key.trim()));
@@ -1348,7 +1352,8 @@ function viewSettings() {
       <p class="small muted">Crea una chiave gratuita su <b>aistudio.google.com</b> → Get API key, poi incollala qui. Resta solo su questo telefono. Con il piano gratuito Google può usare i testi per migliorare i suoi servizi: non scrivere dati personali.</p>
       <input class="txt" id="key" placeholder="Chiave API Gemini" value="${esc(c.key || '')}" autocomplete="off">
       <div class="row"><select class="txt grow" id="model">${c.model ? `<option>${esc(c.model)}</option>` : '<option value="">Prima carica i modelli</option>'}</select><button class="btn soft sm" type="button" id="lm">Carica modelli</button></div>
-      <div class="row"><button class="btn sm" type="button" id="sk">Salva e prova</button><span class="small muted" id="aist">${aiOn() ? 'Configurata' : 'Non configurata'}</span></div></div>
+      <div class="row"><button class="btn sm" type="button" id="sk">Salva e prova</button><span class="small muted" id="aist">${aiOn() ? 'Configurata' : 'Non configurata'}</span></div>
+      <button class="btn ghost sm" type="button" id="diag">Diagnosi connessione</button><pre id="diagout" class="small" style="white-space:pre-wrap;margin:0"></pre></div>
     <div class="card"><h3>Voce</h3><select class="txt" id="voice">${VOICES.map(v => `<option value="${esc(v.name)}"${vc.voice === v.name ? ' selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('') || '<option>Voce predefinita</option>'}</select>
       <label class="f">Velocità<input type="range" id="rate" min="0.6" max="1.2" step="0.05" value="${vc.rate || 0.9}"></label><button class="btn soft sm" type="button" id="tv">Prova voce</button></div>
     <div class="card"><h3>Backup dei dati</h3><p class="small muted">${last ? 'Ultimo backup: ' + fmtDate(iso(new Date(last))) + '.' : 'Nessun backup ancora.'} I dati restano solo su questo telefono: se cancelli i dati dei siti in Chrome si perdono.</p>
@@ -1364,6 +1369,24 @@ function viewSettings() {
     S('ec-ai', { key: $('#key').value.replace(/\s+/g, ''), model: $('#model').value }); $('#aist').textContent = 'Provo…';
     try { const r = await ai('Reply with exactly: OK', [{ role: 'user', text: 'Test' }]); $('#aist').textContent = 'Funziona (' + r.slice(0, 20) + ')'; }
     catch (e) { $('#aist').textContent = 'Errore: ' + e.message; }
+  };
+  $('#diag').onclick = async () => {
+    const k = $('#key').value.replace(/\s+/g, ''), m = $('#model').value, out = $('#diagout'), L = [];
+    const log = t => { L.push(t); out.textContent = L.join('\n'); };
+    const base = 'https://generativelanguage.googleapis.com/v1beta/';
+    log('Pagina: ' + location.origin + (navigator.serviceWorker && navigator.serviceWorker.controller ? ' (con service worker)' : ''));
+    log('Online: ' + navigator.onLine + ' · chiave: ' + (k ? k.slice(0, 4) + '…' + k.length + ' caratteri' : 'mancante') + ' · modello: ' + (m || 'nessuno'));
+    const tryF = async (name, url, opt) => {
+      try { const r = await fetch(url, opt); const t = await r.text(); log(name + ': HTTP ' + r.status + ' ' + t.slice(0, 120).replace(/\s+/g, ' ')); }
+      catch (e) { log(name + ': ERRORE ' + (e.name || '') + ' ' + (e.message || e)); }
+    };
+    await tryF('1 Lista modelli', base + 'models?pageSize=5&key=' + encodeURIComponent(k));
+    if (m) {
+      const body = JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Say OK' }] }] });
+      await tryF('2 Risposta (JSON)', base + 'models/' + encodeURIComponent(m) + ':generateContent?key=' + encodeURIComponent(k), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+      await tryF('3 Risposta (semplice)', base + 'models/' + encodeURIComponent(m) + ':generateContent?key=' + encodeURIComponent(k), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body });
+    } else log('2-3 saltati: prima premi Carica modelli');
+    log('Fine. Fai uno screenshot di questo riquadro (la chiave non è visibile).');
   };
   const saveV = () => S('ec-voice', { voice: $('#voice').value, rate: +$('#rate').value });
   $('#voice').onchange = saveV; $('#rate').onchange = saveV;
